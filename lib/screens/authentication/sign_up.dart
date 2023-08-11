@@ -1,11 +1,12 @@
-import 'package:clever_tech/data/fireBase/fire_base_auth.dart';
-import 'package:clever_tech/data/fireBase/fire_base_exceptions.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:developer';
+
+import 'package:clever_tech/features/auth/auth_exceptions.dart';
+import 'package:clever_tech/features/auth/auth_service.dart';
+import 'package:clever_tech/screens/authentication/login_screen.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:clever_tech/data/colors.dart';
 import '../../widgets/button_widgets.dart';
-import '../app_build/main_app_builder.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -16,8 +17,6 @@ class SignUp extends StatefulWidget {
 
 class _SignUpState extends State<SignUp> {
   bool isChecked = false;
-  AuthenticationService auth = AuthenticationService();
-  late final AuthStatus _status;
   late final TextEditingController _name;
   late final TextEditingController _email;
   late final TextEditingController _password;
@@ -36,25 +35,6 @@ class _SignUpState extends State<SignUp> {
     _email = TextEditingController();
     _password = TextEditingController();
     super.dispose();
-  }
-
-  void register() async {
-    try {
-      _status = await auth.createAccount(
-          email: _email.toString(),
-          password: _password.toString(),
-          name: _name.toString());
-      final user = FirebaseAuth.instance.currentUser;
-    } finally {
-      if (auth.currentUser?.emailVerified ?? false)
-        {
-          Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (context) => const MainApp()),
-                  (route) => false);
-        }else {
-        Navigator.of(context).pop;
-      }
-    }
   }
 
   @override
@@ -136,7 +116,28 @@ class _SignUpState extends State<SignUp> {
             Container(
               margin: const EdgeInsets.only(top: 20),
               child: EButton(
-                onPressed: register,
+                onPressed: () async {
+                  final email = _email.text;
+                  final password = _password.text;
+                  try{
+                    await AuthService.firebase().createUser(
+                      email: email,
+                      password: password,
+                    );
+                    if (!mounted) return;
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const Login()));
+                  } on EmailAlreadyInUseAuthException {
+                    log('Email already in use');
+                  } on WeakPasswordAuthException {
+                    log('Password is too weak');
+                  } on InvalidEmailAuthException {
+                    log('Email is invalid');
+                  }  on GenericAuthException {
+                    log('Something went wrong');
+                  } catch (e) {
+                    log(e.toString());
+                  }
+                },
                 label: 'Register',
               ),
             ),

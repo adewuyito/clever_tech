@@ -1,16 +1,13 @@
 import 'package:clever_tech/data/colors.dart';
+import 'package:clever_tech/features/auth/auth_service.dart';
 import 'package:clever_tech/screens/app_build/account_edits.dart';
-import 'package:clever_tech/widgets/text_field_widget.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:clever_tech/screens/authentication/login_screen.dart';
+import 'package:clever_tech/widgets/button_widgets.dart';
 import 'package:flutter/material.dart';
-
-import '../../data/fireBase/fire_base_auth.dart';
 
 class Account extends StatelessWidget {
   Account({super.key});
 
-  final User? user = AuthenticationService().currentUser;
-  // final String? userFullName = user?.displayName;
   final String userEmail = "Adewuytimothy@gmail.com";
 
   @override
@@ -103,6 +100,17 @@ class Account extends StatelessWidget {
                 ],
               ),
               const QuickActionWidget(),
+              EButton(
+                label: 'Sign Out',
+                onPressed: () async {
+                  await AuthService.firebase().logout();
+                  Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(
+                        builder: (context) => const Login(),
+                      ),
+                      (route) => false);
+                },
+              ),
             ],
           ),
         ),
@@ -214,8 +222,8 @@ class AccountOptions extends StatelessWidget {
         children: [
           GestureDetector(
             onTap: () {
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const EditAccount()));
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => const EditAccount()));
             },
             child: Container(
               decoration: BoxDecoration(
@@ -228,7 +236,7 @@ class AccountOptions extends StatelessWidget {
             ),
           ),
           GestureDetector(
-           onTap: (){},
+            onTap: () {},
             child: Container(
               decoration: BoxDecoration(
                 color: colorGrey3,

@@ -1,13 +1,9 @@
 import 'dart:developer';
-
-import 'package:clever_tech/data/fireBase/fire_base_auth.dart';
-import 'package:clever_tech/screens/app_build/account_edits.dart';
 import 'package:clever_tech/screens/app_build/account_screen.dart';
 import 'package:clever_tech/screens/app_build/automation.dart';
 import 'package:clever_tech/screens/app_build/home_screen.dart';
 import 'package:clever_tech/screens/app_build/report_screen.dart';
 import 'package:clever_tech/data/colors.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 enum PopUp {
@@ -25,7 +21,6 @@ class MainApp extends StatefulWidget {
 class _MainAppState extends State<MainApp> {
   bool showAppbar = true;
   var appBarHeight = AppBar().preferredSize.height;
-  final User? user = AuthenticationService().currentUser;
   List pages = [
     const Home(),
     const Automation(),

@@ -3,7 +3,7 @@ import 'package:clever_tech/features/auth/auth_provider.dart';
 import 'package:clever_tech/features/auth/auth_user.dart';
 import 'package:clever_tech/firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart'
-    show FirebaseAuth, FirebaseAuthException;
+    show FirebaseAuth, FirebaseAuthException, UserCredential;
 import 'package:firebase_core/firebase_core.dart';
 
 class FirebaseAuthProvider implements AuthProvider {
@@ -11,16 +11,18 @@ class FirebaseAuthProvider implements AuthProvider {
 
   @override
   Future<AuthUser> createUser({
+    required String name,
     required String email,
     required String password,
   }) async {
     try {
-      await _auth.createUserWithEmailAndPassword(
+      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
       final user = currentUser;
       if (user != null) {
+        await userCredential.user!.updateDisplayName(name);
         return user;
       } else {
         throw UserNotFoundAuthException();

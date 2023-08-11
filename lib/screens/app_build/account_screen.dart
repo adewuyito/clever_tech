@@ -1,14 +1,47 @@
+import 'dart:developer';
+
 import 'package:clever_tech/data/colors.dart';
 import 'package:clever_tech/features/auth/auth_service.dart';
 import 'package:clever_tech/screens/app_build/account_edits.dart';
 import 'package:clever_tech/screens/authentication/login_screen.dart';
 import 'package:clever_tech/widgets/button_widgets.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
-class Account extends StatelessWidget {
-  Account({super.key});
+class Account extends StatefulWidget {
+  const Account({super.key});
 
-  final String userEmail = "Adewuytimothy@gmail.com";
+  @override
+  State<Account> createState() => _AccountState();
+}
+
+class _AccountState extends State<Account> {
+  late String userEmail = '';
+  late String userFullName = '';
+
+  final _auth = FirebaseAuth.instance;
+
+  void getCurrentUser() async {
+    try {
+      final user = _auth.currentUser;
+      if (user != null) {
+        setState(() {
+          userEmail = user.email!;
+          userFullName = user.displayName!;
+        });
+      }
+    } on FirebaseAuthException catch (e) {
+      log(e.toString());
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    getCurrentUser();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,9 +62,9 @@ class Account extends StatelessWidget {
                   backgroundImage: AssetImage('assets/images/image_a.jpg'),
                 ),
               ),
-              const Text(
-                'userFullName',
-                style: TextStyle(
+              Text(
+              userFullName,
+                style: const TextStyle(
                     fontWeight: FontWeight.w600,
                     fontFamily: 'SFTS',
                     fontSize: 20),

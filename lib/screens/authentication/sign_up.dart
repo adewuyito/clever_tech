@@ -117,10 +117,12 @@ class _SignUpState extends State<SignUp> {
               margin: const EdgeInsets.only(top: 20),
               child: EButton(
                 onPressed: () async {
+                  final name = _name.text;
                   final email = _email.text;
                   final password = _password.text;
                   try{
                     await AuthService.firebase().createUser(
+                      name: name,
                       email: email,
                       password: password,
                     );

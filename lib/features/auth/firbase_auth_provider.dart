@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:clever_tech/features/auth/auth_exceptions.dart';
 import 'package:clever_tech/features/auth/auth_provider.dart';
 import 'package:clever_tech/features/auth/auth_user.dart';
@@ -16,7 +18,8 @@ class FirebaseAuthProvider implements AuthProvider {
     required String password,
   }) async {
     try {
-      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+      UserCredential userCredential =
+          await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -49,6 +52,15 @@ class FirebaseAuthProvider implements AuthProvider {
     }
   }
 
+  AuthUser? get reload {
+    final user = _auth.currentUser;
+    if (user != null) {
+      user?.reload();
+      } else {
+      return null;
+    }
+  }
+
   @override
   Future<AuthUser> login({
     required String email,
@@ -66,11 +78,11 @@ class FirebaseAuthProvider implements AuthProvider {
         throw UserNotLoggedInAuthException();
       }
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found'){
+      if (e.code == 'user-not-found') {
         throw UserNotFoundAuthException();
-      } else if(e.code == 'wrong-password'){
+      } else if (e.code == 'wrong-password') {
         throw WrongPasswordAuthException();
-      }else {
+      } else {
         throw GenericAuthException();
       }
     } catch (_) {
@@ -81,11 +93,9 @@ class FirebaseAuthProvider implements AuthProvider {
   @override
   Future<void> logout() async {
     final user = _auth.currentUser;
-    if (user != null)
-      {
-        _auth.signOut();
-      }
-    else{
+    if (user != null) {
+      _auth.signOut();
+    } else {
       throw UserNotLoggedInAuthException();
     }
   }
@@ -105,5 +115,21 @@ class FirebaseAuthProvider implements AuthProvider {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+  }
+
+  @override
+  Future<void> updateDisplayName({required String name}) async {
+    var user = _auth.currentUser;
+    try {
+      if (user != null) {
+        await user.updateDisplayName(name);
+      } else {
+        throw UserNotFoundAuthException();
+      }
+    } on GenericAuthException {
+      log('Error updating display name');
+    } on FirebaseAuthException catch (e) {
+      log(e.code);
+    }
   }
 }

@@ -6,7 +6,6 @@ import 'package:clever_tech/screens/app_build/account_edits.dart';
 import 'package:clever_tech/screens/authentication/login_screen.dart';
 import 'package:clever_tech/widgets/button_widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 class Account extends StatefulWidget {
@@ -17,136 +16,158 @@ class Account extends StatefulWidget {
 }
 
 class _AccountState extends State<Account> {
-  late String userEmail = '';
-  late String userFullName = '';
 
   final _auth = FirebaseAuth.instance;
 
-  void getCurrentUser() async {
-    try {
-      final user = _auth.currentUser;
-      if (user != null) {
-        setState(() {
-          userEmail = user.email!;
-          userFullName = user.displayName!;
-        });
-      }
-    } on FirebaseAuthException catch (e) {
-      log(e.toString());
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    getCurrentUser();
-  }
+  // void getCurrentUser() async {
+  //   try {
+  //     FirebaseAuth.instance
+  //         .authStateChanges()
+  //         .listen((User? user) {
+  //       if (user != null) {
+  //         setState(() {
+  //           userEmail = user.email!;
+  //           userFullName = user.displayName!;
+  //         });
+  //       }
+  //     });
+  //
+  //     // final user = _auth.currentUser;
+  //     // if (user != null) {
+  //     //   setState(() {
+  //     //     userEmail = user.email!;
+  //     //     userFullName = user.displayName!;
+  //     //   });
+  //     // }
+  //   } on FirebaseAuthException catch (e) {
+  //     log(e.toString());
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
-        minimum: const EdgeInsets.only(right: 17, left: 17),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const AccountOptions(),
-              CircleAvatar(
-                backgroundColor: colorGrey3,
-                radius: 50,
-                child: const CircleAvatar(
-                  radius: 45,
-                  backgroundImage: AssetImage('assets/images/image_a.jpg'),
-                ),
-              ),
-              Text(
-              userFullName,
-                style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontFamily: 'SFTS',
-                    fontSize: 20),
-              ),
-              Text(
-                userEmail,
-                style: TextStyle(
-                    fontFamily: 'SFTS',
-                    fontSize: 11,
-                    letterSpacing: 0.07,
-                    color: colorGrey2),
-              ),
-              Container(
-                margin: const EdgeInsets.only(top: 86),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      body: StreamBuilder<User?>(
+        stream: _auth.userChanges(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.active) {
+            final user = snapshot.data;
+            final displayName = user?.displayName ?? 'N/A';
+            final userEmail = user?.email ?? '';
+
+            return SafeArea(
+              minimum: const EdgeInsets.only(right: 17, left: 17),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    AccountCubs(
-                      widgetIcons: Icons.mic,
-                      widgetColor: colorPurple,
-                      widgetText: 'Notification',
-                    ),
-                    AccountCubs(
-                      widgetIcons: Icons.message_rounded,
-                      widgetColor: colorPink2,
-                      widgetText: 'Message center',
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                margin: const EdgeInsets.only(top: 17, bottom: 17),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    AccountCubs(
-                        widgetIcons: Icons.message_rounded,
-                        widgetColor: colorBlue,
-                        widgetText: 'FAQ'),
-                    AccountCubs(
-                      widgetIcons: Icons.mic,
-                      widgetColor: colorGreen,
-                      widgetText: 'Notification',
-                    ),
-                  ],
-                ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Quick action',
-                    style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.35),
-                  ),
-                  TextButton(
-                    onPressed: () {},
-                    child: Text(
-                      'View all',
-                      style: TextStyle(
-                          color: colorGrey, fontSize: 11, letterSpacing: 0.07),
-                    ),
-                  ),
-                ],
-              ),
-              const QuickActionWidget(),
-              EButton(
-                label: 'Sign Out',
-                onPressed: () async {
-                  await AuthService.firebase().logout();
-                  Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(
-                        builder: (context) => const Login(),
+                    const AccountOptions(),
+                    CircleAvatar(
+                      backgroundColor: colorGrey3,
+                      radius: 50,
+                      child: const CircleAvatar(
+                        radius: 45,
+                        backgroundImage: AssetImage(
+                            'assets/images/image_a.jpg'),
                       ),
-                      (route) => false);
-                },
+                    ),
+                    Text(
+                      displayName,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'SFTS',
+                          fontSize: 20),
+                    ),
+                    Text(
+                      userEmail,
+                      style: TextStyle(
+                          fontFamily: 'SFTS',
+                          fontSize: 11,
+                          letterSpacing: 0.07,
+                          color: colorGrey2),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.only(top: 86),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          AccountCubs(
+                            widgetIcons: Icons.mic,
+                            widgetColor: colorPurple,
+                            widgetText: 'Notification',
+                          ),
+                          AccountCubs(
+                            widgetIcons: Icons.message_rounded,
+                            widgetColor: colorPink2,
+                            widgetText: 'Message center',
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.only(top: 17, bottom: 17),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          AccountCubs(
+                              widgetIcons: Icons.message_rounded,
+                              widgetColor: colorBlue,
+                              widgetText: 'FAQ'),
+                          AccountCubs(
+                            widgetIcons: Icons.mic,
+                            widgetColor: colorGreen,
+                            widgetText: 'Notification',
+                          ),
+                        ],
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Quick action',
+                          style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.35),
+                        ),
+                        TextButton(
+                          onPressed: () {},
+                          child: Text(
+                            'View all',
+                            style: TextStyle(
+                                color: colorGrey,
+                                fontSize: 11,
+                                letterSpacing: 0.07),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const QuickActionWidget(),
+                    EButton(
+                      label: 'Sign Out',
+                      onPressed: () async {
+                        await AuthService.firebase().logout();
+                        Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(
+                              builder: (context) => const Login(),
+                            ),
+                                (route) => false);
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ],
-          ),
-        ),
+            );
+          } else {
+            return Center(
+              child: CircularProgressIndicator(
+                color: colorGreen,
+              ),
+            );
+          }
+        },
       ),
     );
   }
@@ -157,11 +178,10 @@ class AccountCubs extends StatelessWidget {
   final Color widgetColor;
   final IconData widgetIcons;
 
-  const AccountCubs(
-      {super.key,
-      required this.widgetColor,
-      required this.widgetIcons,
-      required this.widgetText});
+  const AccountCubs({super.key,
+    required this.widgetColor,
+    required this.widgetIcons,
+    required this.widgetText});
 
   @override
   Widget build(BuildContext context) {
@@ -228,7 +248,7 @@ class _QuickActionWidgetState extends State<QuickActionWidget> {
             letterSpacing: -0.41),
         subtitle: const Text('Turn off all devices in all rooms'),
         subtitleTextStyle:
-            TextStyle(color: colorGrey, fontSize: 11, letterSpacing: 0.07),
+        TextStyle(color: colorGrey, fontSize: 11, letterSpacing: 0.07),
         trailing: Switch(
           activeTrackColor: colorGreen,
           value: isOn,
@@ -285,3 +305,5 @@ class AccountOptions extends StatelessWidget {
     );
   }
 }
+
+

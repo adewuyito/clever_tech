@@ -34,4 +34,8 @@ class AuthService implements AuthProvider {
 
   @override
   Future<void> initialize() => provider.initialize();
+
+  @override
+  Future<void> updateDisplayName({required String name}) =>
+      provider.updateDisplayName(name: name);
 }

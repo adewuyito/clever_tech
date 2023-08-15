@@ -1,6 +1,12 @@
+import 'dart:developer';
+
 import 'package:clever_tech/data/colors.dart';
-import 'package:clever_tech/widgets/button_widgets.dart';
+import 'package:clever_tech/services/location_service.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
+
+import '../../../services/device_date_service.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -91,10 +97,64 @@ class _HomeState extends State<Home> {
   }
 }
 
-class LongWidget extends StatelessWidget {
+class LongWidget extends StatefulWidget {
   final Color color_1;
 
   const LongWidget({super.key, required this.color_1});
+
+  @override
+  State<LongWidget> createState() => _LongWidgetState();
+}
+
+class _LongWidgetState extends State<LongWidget> {
+  final dateFormat = DateDay();
+  String? _currentAddress = 'N/A';
+  Position? _currentPosition;
+
+  _getCurrentLocation() async {
+    final locationService = UserLocation();
+    bool isAllowed = await locationService.handleLocationPermission();
+    try{
+      if(isAllowed == true){
+        Position getPosition =  await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.medium,
+          forceAndroidLocationManager: true,);
+          setState(() {
+            _currentPosition = getPosition;
+            _getAddress(_currentPosition);
+          });
+      } else {
+        const LocationServiceDisabledException();
+      }
+    }catch (e){
+      log(e.toString());
+    }
+
+  }
+
+  _getAddress(Position? position) async {
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        position!.latitude,
+        position!.longitude,
+      );
+
+      Placemark place = placemarks[0];
+
+      setState(() {
+        _currentAddress = place.locality;
+      });
+    } catch (e) {
+      log(e.toString());
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    _getCurrentLocation();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -104,97 +164,91 @@ class LongWidget extends StatelessWidget {
         height: 130,
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.all(Radius.circular(25)),
-          color: color_1,
+          color: widget.color_1,
         ),
         padding: const EdgeInsets.all(12),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Expanded(
-              flex: 1,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Wednesday',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      dateFormat.getDay(),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
                       ),
-                      Text(
-                        '27 Jun',
-                        style: TextStyle(
-                          color: Colors.white,
-                        ),
+                    ),
+                    Text(
+                      dateFormat.getDate(),
+                      style: const TextStyle(
+                        color: Colors.white,
                       ),
-                    ],
-                  ),
-                  Row(
-                    // mainAxisAlignment: MainAxisAlignment.,
+                    ),
+                  ],
+                ),
+                Row(
+                  // mainAxisAlignment: MainAxisAlignment.,
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.only(right: 4),
+                      child: const Icon(
+                        Icons.cloud,
+                        color: Colors.white,
+                        size: 14,
+                      ),
+                    ),
+                    const Text(
+                      'Cloudless',
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    )
+                  ],
+                )
+              ],
+            ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                SizedBox(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Container(
                         margin: const EdgeInsets.only(right: 4),
                         child: const Icon(
-                          Icons.cloud,
+                          Icons.location_on_rounded,
                           color: Colors.white,
                           size: 14,
                         ),
                       ),
-                      const Text(
-                        'Cloudless',
-                        style: TextStyle(
+                      Text(
+                        _currentAddress!,
+                        style: const TextStyle(
                           color: Colors.white,
                         ),
-                      )
+                      ),
                     ],
-                  )
-                ],
-              ),
-            ),
-            Expanded(
-              flex: 1,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  SizedBox(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Container(
-                          // margin: const EdgeInsets.only(right: 4),
-                          child: const Icon(
-                            Icons.location_on_rounded,
-                            color: Colors.white,
-                            size: 14,
-                          ),
-                        ),
-                        const Text(
-                          'Kharkov',
-                          style: TextStyle(
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
                   ),
-                  const Text(
-                    '19°',
-                    style: TextStyle(
-                      height: 1,
-                      color: Colors.white,
-                      fontSize: 50,
-                      fontWeight: FontWeight.w500,
-                      // fontFamily: 'SFTS',
-                    ),
-                  )
-                ],
-              ),
+                ),
+                const Text(
+                  '19°',
+                  style: TextStyle(
+                    height: 1,
+                    color: Colors.white,
+                    fontSize: 50,
+                    fontWeight: FontWeight.w500,
+                    // fontFamily: 'SFTS',
+                  ),
+                )
+              ],
             ),
           ],
         ),
@@ -211,7 +265,6 @@ class ShortWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      flex: 1,
       child: Container(
         height: 130,
         decoration: BoxDecoration(
@@ -219,49 +272,46 @@ class ShortWidget extends StatelessWidget {
           color: color_1,
         ),
         padding: const EdgeInsets.all(12),
-        child: const Expanded(
-          flex: 1,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Usage',
-                    style: TextStyle(
-                      color: Colors.white,
-                    ),
+        child: const Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Usage',
+                  style: TextStyle(
+                    color: Colors.white,
                   ),
-                  Text(
-                    '2.24',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white,
-                      fontSize: 34,
-                    ),
+                ),
+                Text(
+                  '2.24',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white,
+                    fontSize: 34,
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'kWh',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                      Icon(
-                        Icons.ssid_chart_rounded,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'kWh',
+                      style: TextStyle(
                         color: Colors.white,
-                      )
-                    ],
-                  )
-                ],
-              ),
-            ],
-          ),
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    Icon(
+                      Icons.ssid_chart_rounded,
+                      color: Colors.white,
+                    )
+                  ],
+                )
+              ],
+            ),
+          ],
         ),
       ),
     );
@@ -447,39 +497,3 @@ class _CardWidgetState extends State<CardWidget> {
         ));
   }
 }
-
-// class CardView extends StatelessWidget {
-//   const CardView({super.key});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Expanded(
-//       child: Container(
-//         child: Column(
-//           children: [
-//             const Image(image: null),
-//             Container(Icon(Icons.home, color: Colors.white)),
-//             Row(children: [Text('Living Room')],),
-//             RichText(
-//               text: TextSpan(
-//                 style: const TextStyle(color: Colors.black),
-//                 children: [
-//                   const TextSpan(text: "I agree "),
-//                   TextSpan(
-//                       text: "Privacy Policy ",
-//                       style: TextStyle(color: colorGreen),
-//                       recognizer: TapGestureRecognizer()..onTap = () {}),
-//                   const TextSpan(text: "and "),
-//                   TextSpan(
-//                       text: "User Agreement ",
-//                       style: TextStyle(color: colorGreen),
-//                       recognizer: TapGestureRecognizer()..onTap = () {}),
-//                 ],
-//               ),
-//             )
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }

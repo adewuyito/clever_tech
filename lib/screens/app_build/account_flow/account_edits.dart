@@ -1,11 +1,9 @@
 import 'dart:developer';
 
 import 'package:clever_tech/data/colors.dart';
-import 'package:clever_tech/features/auth/auth_service.dart';
 import 'package:clever_tech/widgets/button_widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class EditAccount extends StatefulWidget {
   const EditAccount({super.key});

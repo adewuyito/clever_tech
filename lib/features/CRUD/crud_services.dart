@@ -1,4 +1,4 @@
-import 'package:clever_tech/features/CRUD/crud_constants.dart';
+import 'package:clever_tech/constants/crud_constants.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' show join;

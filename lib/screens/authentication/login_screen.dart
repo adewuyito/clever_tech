@@ -19,8 +19,8 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   final _auth = FirebaseAuth.instance;
-  late final TextEditingController _email;
-  late final TextEditingController _password;
+  late TextEditingController _email;
+  late TextEditingController _password;
 
   @override
   void initState() {

@@ -1,14 +1,17 @@
 import 'dart:developer';
-import 'package:clever_tech/screens/app_build/account_screen.dart';
-import 'package:clever_tech/screens/app_build/automation.dart';
-import 'package:clever_tech/screens/app_build/home_screen.dart';
-import 'package:clever_tech/screens/app_build/report_screen.dart';
+import 'package:clever_tech/screens/app_build/account_flow/account_screen.dart';
+import 'package:clever_tech/screens/app_build/automation_flow/automation.dart';
+import 'package:clever_tech/screens/app_build/home/home_screen.dart';
+import 'package:clever_tech/screens/app_build/report_flow/report_screen.dart';
 import 'package:clever_tech/data/colors.dart';
 import 'package:flutter/material.dart';
+
+import 'automation_flow/new_automation/main_automation.dart';
 
 enum PopUp {
   newDevice,
   newRoom,
+  newScene,
 }
 
 class MainApp extends StatefulWidget {
@@ -17,7 +20,7 @@ class MainApp extends StatefulWidget {
   @override
   State<MainApp> createState() => _MainAppState();
 }
-
+/// TODO Implement Remaining automation pages.
 class _MainAppState extends State<MainApp> {
   bool showAppbar = true;
   var appBarHeight = AppBar().preferredSize.height;
@@ -25,7 +28,14 @@ class _MainAppState extends State<MainApp> {
     const Home(),
     const Automation(),
     const Reports(),
-    Account(),
+    const Account(),
+    // const EditAccount(),
+  ];
+  List pagesTitle = [
+    const Home(),
+    const Automation(),
+    const Reports(),
+    const Account(),
     // const EditAccount(),
   ];
   int selectedIndex = 0;
@@ -38,6 +48,19 @@ class _MainAppState extends State<MainApp> {
       });
     } else {
       showAppbar = true;
+    }
+  }
+
+  String setTitle() {
+    switch (selectedIndex) {
+      case 0:
+        return 'My Home';
+      case 1:
+        return 'Automation';
+      case 2:
+        return 'Reports';
+      default:
+        return 'My Home';
     }
   }
 
@@ -60,23 +83,27 @@ class _MainAppState extends State<MainApp> {
           ? AppBar(
               toolbarHeight: 70,
               backgroundColor: Colors.white,
+              surfaceTintColor: Colors.white,
+              scrolledUnderElevation: 0.0,
               elevation: 0,
-              title: const Text(
-                'My Home',
-                style: TextStyle(
+              title: Text(
+                setTitle(),
+                style: const TextStyle(
                   fontWeight: FontWeight.w600,
                   fontFamily: 'SFTS',
                   fontSize: 24,
                 ),
               ),
               leading: Container(
+                // width: 274,
                 decoration: BoxDecoration(
                   borderRadius: const BorderRadius.all(Radius.circular(20)),
                   color: colorGrey3,
                 ),
                 margin: const EdgeInsets.only(left: 12, top: 26),
                 child: PopupMenuButton<PopUp>(
-                  // color: ,
+                  surfaceTintColor: Colors.white,
+                  elevation: 2,
                   shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(
                       Radius.circular(20),
@@ -85,8 +112,8 @@ class _MainAppState extends State<MainApp> {
                   offset: Offset(0.0, appBarHeight),
                   icon: const Icon(Icons.add),
                   itemBuilder: (context) {
-                    return const [
-                      PopupMenuItem(
+                    return [
+                      const PopupMenuItem(
                           padding: EdgeInsets.all(24),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -97,8 +124,8 @@ class _MainAppState extends State<MainApp> {
                               ),
                             ],
                           )),
-                      PopupMenuDivider(),
-                      PopupMenuItem(
+                      const PopupMenuDivider(),
+                      const PopupMenuItem(
                           padding: EdgeInsets.all(24),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -108,7 +135,24 @@ class _MainAppState extends State<MainApp> {
                                 AssetImage('assets/icons/message-add.png'),
                               )
                             ],
-                          ))
+                          )),
+                      const PopupMenuDivider(),
+                      PopupMenuItem(
+                          onTap: () {
+                            log('Page routing');
+                            // Navigator.of(context).pushReplacement(MaterialPageRoute(
+                            //     builder: (context) => const MainAutomation()));
+                          },
+                          padding: const EdgeInsets.all(24),
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Text('Add new scene'),
+                              ImageIcon(
+                                AssetImage('assets/icons/message-add.png'),
+                              )
+                            ],
+                          )),
                     ];
                   },
                 ),

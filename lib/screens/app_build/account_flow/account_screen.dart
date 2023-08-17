@@ -1,8 +1,7 @@
-import 'dart:developer';
-
 import 'package:clever_tech/data/colors.dart';
 import 'package:clever_tech/features/auth/auth_service.dart';
-import 'package:clever_tech/screens/app_build/account_edits.dart';
+import 'package:clever_tech/screens/app_build/account_flow/account_edits.dart';
+import 'package:clever_tech/screens/app_build/automation_flow/new_automation/main_automation.dart';
 import 'package:clever_tech/screens/authentication/login_screen.dart';
 import 'package:clever_tech/widgets/button_widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -16,7 +15,6 @@ class Account extends StatefulWidget {
 }
 
 class _AccountState extends State<Account> {
-
   final _auth = FirebaseAuth.instance;
 
   // void getCurrentUser() async {
@@ -68,8 +66,8 @@ class _AccountState extends State<Account> {
                       radius: 50,
                       child: const CircleAvatar(
                         radius: 45,
-                        backgroundImage: AssetImage(
-                            'assets/images/image_a.jpg'),
+                        backgroundImage:
+                            AssetImage('assets/images/image_a.jpg'),
                       ),
                     ),
                     Text(
@@ -149,11 +147,13 @@ class _AccountState extends State<Account> {
                       label: 'Sign Out',
                       onPressed: () async {
                         await AuthService.firebase().logout();
-                        Navigator.of(context).pushAndRemoveUntil(
-                            MaterialPageRoute(
-                              builder: (context) => const Login(),
-                            ),
-                                (route) => false);
+                        if (mounted) {
+                          Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(
+                                builder: (context) => const Login(),
+                              ),
+                              (route) => false);
+                        }
                       },
                     ),
                   ],
@@ -178,10 +178,11 @@ class AccountCubs extends StatelessWidget {
   final Color widgetColor;
   final IconData widgetIcons;
 
-  const AccountCubs({super.key,
-    required this.widgetColor,
-    required this.widgetIcons,
-    required this.widgetText});
+  const AccountCubs(
+      {super.key,
+      required this.widgetColor,
+      required this.widgetIcons,
+      required this.widgetText});
 
   @override
   Widget build(BuildContext context) {
@@ -248,7 +249,7 @@ class _QuickActionWidgetState extends State<QuickActionWidget> {
             letterSpacing: -0.41),
         subtitle: const Text('Turn off all devices in all rooms'),
         subtitleTextStyle:
-        TextStyle(color: colorGrey, fontSize: 11, letterSpacing: 0.07),
+            TextStyle(color: colorGrey, fontSize: 11, letterSpacing: 0.07),
         trailing: Switch(
           activeTrackColor: colorGreen,
           value: isOn,
@@ -276,6 +277,24 @@ class AccountOptions extends StatelessWidget {
           GestureDetector(
             onTap: () {
               Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const MainAutomation(),
+                ),
+              );
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                color: colorGrey3,
+                borderRadius: const BorderRadius.all(Radius.circular(20)),
+              ),
+              width: 60,
+              height: 60,
+              child: const Icon(Icons.settings_rounded),
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              Navigator.of(context).push(
                   MaterialPageRoute(builder: (context) => const EditAccount()));
             },
             child: Container(
@@ -288,22 +307,8 @@ class AccountOptions extends StatelessWidget {
               child: const Icon(Icons.edit_rounded),
             ),
           ),
-          GestureDetector(
-            onTap: () {},
-            child: Container(
-              decoration: BoxDecoration(
-                color: colorGrey3,
-                borderRadius: const BorderRadius.all(Radius.circular(20)),
-              ),
-              width: 60,
-              height: 60,
-              child: const Icon(Icons.settings_rounded),
-            ),
-          ),
         ],
       ),
     );
   }
 }
-
-

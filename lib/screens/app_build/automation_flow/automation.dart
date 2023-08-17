@@ -7,25 +7,72 @@ class Automation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(),
-        body: SafeArea(
-          minimum: const EdgeInsets.only(
-            left: 17,
-            right: 17,
-          ),
-          child: Column(children: [
-            Row(
-              children: [
-                ActiveScenes(color_1: colorGreen, name: 'Active Scenes'),
-                const SizedBox(
-                  width: 16,
-                ),
-                ActiveScenes(color_1: colorPurple, name: 'Active Scenes')
-              ],
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        minimum: const EdgeInsets.only(
+          left: 17,
+          right: 17,
+        ),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 24),
+              child: Row(
+                children: [
+                  ActiveScenes(color_1: colorGreen, name: 'Active Scenes'),
+                  const SizedBox(
+                    width: 16,
+                  ),
+                  ActiveScenes(color_1: colorPurple, name: 'Active Scenes')
+                ],
+              ),
             ),
-            const ToggledScenes(sceneName: 'Good night',),
-          ]),
-        ));
+            const SizedBox(height: 8),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    margin: const EdgeInsets.only(top: 8),
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Regular scenes',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600, fontSize: 24),
+                        ),
+                        TextButton(
+                          onPressed: () {},
+                          child: Text(
+                            'View all',
+                            style: TextStyle(
+                                color: colorGrey,
+                                fontSize: 11,
+                                letterSpacing: 0.07),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: ListView.separated(
+                      shrinkWrap: true,
+                      itemCount: 5,
+                      itemBuilder: (BuildContext context, int index) =>
+                          const ToggledScenes(),
+                      separatorBuilder: (BuildContext context, int index) =>
+                          const SizedBox(height: 8),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -105,11 +152,32 @@ class ToggledScenes extends StatefulWidget {
 
 class _ToggledScenes extends State<ToggledScenes> {
   bool isOn = false;
+  final String days = 'Everyday';
+
+  Widget _shedule() {
+    return Row(
+      children: [
+        Text(
+          days,
+          style: TextStyle(color: colorGrey, fontSize: 12),
+        ),
+        Container(
+          margin: const EdgeInsets.only(left: 5, right: 2),
+          child: Icon(Icons.access_time_filled_rounded,
+              color: colorGrey, size: 14),
+        ),
+        Text('2:30 pm', style: TextStyle(color: colorGrey, fontSize: 12)),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      // height: 142,
+      alignment: Alignment.center,
       margin: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(20)),
         border: Border.all(color: colorBlack2.withOpacity(0.1)),
@@ -142,10 +210,12 @@ class _ToggledScenes extends State<ToggledScenes> {
               ),
             ],
           ),
+          const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     widget.sceneName,
@@ -154,12 +224,13 @@ class _ToggledScenes extends State<ToggledScenes> {
                       fontSize: 17,
                       letterSpacing: -.041,
                     ),
-                  )
+                  ),
+                  _shedule(),
                 ],
               ),
               Icon(
                 Icons.arrow_forward_ios_rounded,
-                color: colorGrey3,
+                color: colorGrey2,
               ),
             ],
           )
@@ -168,3 +239,20 @@ class _ToggledScenes extends State<ToggledScenes> {
     );
   }
 }
+
+// Column(
+//   children: [
+//     Row(
+//       children: [
+//         ActiveScenes(color_1: colorGreen, name: 'Active Scenes'),
+//         const SizedBox(
+//           width: 16,
+//         ),
+//         ActiveScenes(color_1: colorPurple, name: 'Active Scenes')
+//       ],
+//     ),
+//     const ToggledScenes(
+//       sceneName: 'Good night',
+//     ),
+//   ],
+// ),

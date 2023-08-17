@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:clever_tech/data/colors.dart';
 import 'package:clever_tech/services/location_service.dart';
+import 'package:clever_tech/services/location_weather_exceptions.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
@@ -109,41 +110,44 @@ class LongWidget extends StatefulWidget {
 class _LongWidgetState extends State<LongWidget> {
   final dateFormat = DateDay();
   String? _currentAddress = 'N/A';
+  double? longitude;
+  double? latitude;
+  Position? position;
   Position? _currentPosition;
+  final locationService = UserLocation();
 
   _getCurrentLocation() async {
-    final locationService = UserLocation();
     bool isAllowed = await locationService.handleLocationPermission();
     try{
-      if(isAllowed == true){
-        Position getPosition =  await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.medium,
-          forceAndroidLocationManager: true,);
+      if(isAllowed){
+        Position? getPosition =  await locationService.getPosition();
           setState(() {
             _currentPosition = getPosition;
             _getAddress(_currentPosition);
           });
       } else {
-        const LocationServiceDisabledException();
+        throw LocationServiceDeniedException();
       }
     }catch (e){
       log(e.toString());
     }
-
   }
 
   _getAddress(Position? position) async {
     try {
-      List<Placemark> placemarks = await placemarkFromCoordinates(
-        position!.latitude,
-        position!.longitude,
-      );
+      if (position != null){
+        List<Placemark> placemarks = await placemarkFromCoordinates(
+          position.latitude,
+          position.longitude,
+        );
+        Placemark place = placemarks[0];
+        setState(() {
+          _currentAddress = place.locality;
+        });
+      } else {
+        throw LocationPositionCouldNotBeResolved();
+      }
 
-      Placemark place = placemarks[0];
-
-      setState(() {
-        _currentAddress = place.locality;
-      });
     } catch (e) {
       log(e.toString());
     }

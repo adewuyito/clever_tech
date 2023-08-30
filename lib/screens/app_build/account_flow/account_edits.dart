@@ -1,9 +1,12 @@
 import 'dart:developer';
+import 'dart:typed_data';
 
 import 'package:clever_tech/data/colors.dart';
+import 'package:clever_tech/services/image_picker_service.dart';
 import 'package:clever_tech/widgets/button_widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class EditAccount extends StatefulWidget {
   const EditAccount({super.key});
@@ -17,6 +20,16 @@ class _EditAccountState extends State<EditAccount> {
   final _auth = FirebaseAuth.instance;
   late String profileName = '';
   late TextEditingController? _name = TextEditingController();
+  final LocalImage localImage = LocalImage();
+
+  Uint8List? _profileImage;
+
+  setImage() {
+    Uint8List img = localImage.pickImage(ImageSource.gallery, context);
+    setState(() {
+      _profileImage = img;
+    });
+  }
 
   Widget _profilePhoto() {
     return Container(
@@ -38,10 +51,17 @@ class _EditAccountState extends State<EditAccount> {
                   letterSpacing: -.41,
                 )),
           ),
-          const CircleAvatar(
-            radius: 24,
-            backgroundImage: AssetImage('assets/images/image_a.jpg'),
-          ),
+          Stack(children: [
+            (_profileImage != null)
+                ? CircleAvatar(
+                    radius: 24,
+                    backgroundImage: MemoryImage(_profileImage!),
+                  )
+                : const CircleAvatar(
+                    radius: 24,
+                    backgroundImage: AssetImage('assets/images/image_a.jpg'),
+                  ),
+          ]),
           const SizedBox(
             width: 16,
           ),
@@ -196,7 +216,7 @@ class _EditAccountState extends State<EditAccount> {
     }
   }
 
-  void changeState(){
+  void changeState() {
     setState(() {
       isEditable = !isEditable;
     });
@@ -242,12 +262,19 @@ class _EditAccountState extends State<EditAccount> {
             _profilePhoto(),
             const SizedBox(height: 16),
             GestureDetector(
-                onTap: () {
-                  changeState();
-                  log(isEditable.toString());
-                },
-                child: Visibility(visible: isEditable,child: _profileName(),),),
-             Visibility(visible: !isEditable,child: _updateName(),),
+              onTap: () {
+                changeState();
+                log(isEditable.toString());
+              },
+              child: Visibility(
+                visible: isEditable,
+                child: _profileName(),
+              ),
+            ),
+            Visibility(
+              visible: !isEditable,
+              child: _updateName(),
+            ),
             const SizedBox(height: 16),
             _profileTime(),
             const SizedBox(height: 16),

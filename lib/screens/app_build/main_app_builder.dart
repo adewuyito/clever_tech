@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:clever_tech/screens/app_build/account_flow/account_screen.dart';
 import 'package:clever_tech/screens/app_build/automation_flow/automation.dart';
 import 'package:clever_tech/screens/app_build/home/home_screen.dart';
+import 'package:clever_tech/screens/app_build/new_device_flow/add_new_device.dart';
 import 'package:clever_tech/screens/app_build/report_flow/report_screen.dart';
 import 'package:clever_tech/data/colors.dart';
 import 'package:flutter/material.dart';
@@ -75,6 +76,20 @@ class _MainAppState extends State<MainApp> {
         }
       });
 
+  Widget setVisibility({required int index, required int hideAt,required Row child}){
+    bool visibility = true;
+    if (index == hideAt){
+      setState(() {
+        visibility = true;
+      });
+    }else{
+      setState(() {
+        visibility = false;
+      });
+    }
+    return Visibility(visible: visibility,child: child,);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -113,17 +128,24 @@ class _MainAppState extends State<MainApp> {
                   icon: const Icon(Icons.add),
                   itemBuilder: (context) {
                     return [
-                      const PopupMenuItem(
-                          padding: EdgeInsets.all(24),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Text('Add new device'),
-                              ImageIcon(
-                                AssetImage('assets/icons/hospital.png'),
-                              ),
-                            ],
-                          )),
+                      PopupMenuItem(
+                          onTap: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => const NewDevice()));
+                          },
+                          padding: const EdgeInsets.all(24),
+                          child: setVisibility(
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Text('Add new device'),
+                                ImageIcon(
+                                  AssetImage('assets/icons/hospital.png'),
+                                ),
+                              ],
+                            ), index: selectedIndex, hideAt: 0,
+                          )
+                      ),
                       const PopupMenuDivider(),
                       const PopupMenuItem(
                           padding: EdgeInsets.all(24),
@@ -139,19 +161,22 @@ class _MainAppState extends State<MainApp> {
                       const PopupMenuDivider(),
                       PopupMenuItem(
                           onTap: () {
-                            log('Page routing');
-                            // Navigator.of(context).pushReplacement(MaterialPageRoute(
-                            //     builder: (context) => const MainAutomation()));
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => const MainAutomation()));
                           },
                           padding: const EdgeInsets.all(24),
-                          child: const Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Text('Add new scene'),
-                              ImageIcon(
-                                AssetImage('assets/icons/message-add.png'),
-                              )
-                            ],
+                          child: setVisibility(
+                            index: selectedIndex,
+                            hideAt: 1,
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Text('Add new scene'),
+                                ImageIcon(
+                                  AssetImage('assets/icons/message-add.png'),
+                                )
+                              ],
+                            ),
                           )),
                     ];
                   },

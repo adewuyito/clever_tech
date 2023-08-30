@@ -17,31 +17,6 @@ class Account extends StatefulWidget {
 class _AccountState extends State<Account> {
   final _auth = FirebaseAuth.instance;
 
-  // void getCurrentUser() async {
-  //   try {
-  //     FirebaseAuth.instance
-  //         .authStateChanges()
-  //         .listen((User? user) {
-  //       if (user != null) {
-  //         setState(() {
-  //           userEmail = user.email!;
-  //           userFullName = user.displayName!;
-  //         });
-  //       }
-  //     });
-  //
-  //     // final user = _auth.currentUser;
-  //     // if (user != null) {
-  //     //   setState(() {
-  //     //     userEmail = user.email!;
-  //     //     userFullName = user.displayName!;
-  //     //   });
-  //     // }
-  //   } on FirebaseAuthException catch (e) {
-  //     log(e.toString());
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

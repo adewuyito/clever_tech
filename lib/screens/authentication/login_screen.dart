@@ -1,10 +1,10 @@
 import 'dart:developer';
-
 import 'package:clever_tech/features/auth/auth_exceptions.dart';
 import 'package:clever_tech/features/auth/auth_service.dart';
 import 'package:clever_tech/screens/app_build/main_app_builder.dart';
 import 'package:clever_tech/screens/authentication/forgetpassword_main.dart';
 import 'package:clever_tech/screens/authentication/sign_up.dart';
+import 'package:clever_tech/widgets/snackbar_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -123,14 +123,17 @@ class _LoginState extends State<Login> {
                         ),
                       );
                     } else {
-                      log('user is null');
+                      ScaffoldMessenger.of(context).showSnackBar(kSnackBar('User Could not be found'),);
                     }
                   } on UserNotFoundAuthException {
-                    log('User not found');
+                    ScaffoldMessenger.of(context).showSnackBar(kSnackBar('User not found'),);
                   } on WrongPasswordAuthException {
-                    log('Wrong password');
+                    ScaffoldMessenger.of(context).showSnackBar(kSnackBar('Wrong Password'),);
                   } on GenericAuthException {
                     log('Error occurred}');
+                  }
+                  catch (e){
+                    ScaffoldMessenger.of(context).showSnackBar(kSnackBar(e.toString()));
                   }
                 },
                 label: 'Sign in',

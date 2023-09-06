@@ -20,8 +20,11 @@ abstract class AuthProvider {
     required String name,
   });
 
+  Future<void> updateProfilePicture({
+    required String photoUrl,
+  });
+
   Future<void> logout();
 
   Future<void> sendEmailVerification();
-
 }

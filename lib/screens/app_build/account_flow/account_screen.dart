@@ -28,6 +28,7 @@ class _AccountState extends State<Account> {
             final user = snapshot.data;
             final displayName = user?.displayName ?? 'N/A';
             final userEmail = user?.email ?? '';
+            final userProfilePicture = user?.photoURL;
 
             return SafeArea(
               minimum: const EdgeInsets.only(right: 17, left: 17),
@@ -39,18 +40,36 @@ class _AccountState extends State<Account> {
                     CircleAvatar(
                       backgroundColor: colorGrey3,
                       radius: 50,
-                      child: const CircleAvatar(
+                      child: CircleAvatar(
                         radius: 45,
-                        backgroundImage:
-                            AssetImage('assets/images/image_a.jpg'),
+                        child: userProfilePicture != null
+                            ? ClipOval(
+                                child: Image(
+                                  image: NetworkImage(userProfilePicture),
+                                  width: 90,
+                                  height: 90,
+                                  fit: BoxFit.cover,
+                                ),
+                              )
+                            : const ClipOval(
+                                child: Image(
+                                  image: AssetImage(
+                                    'assets/icons/profile_image.png',
+                                  ),
+                                  width: 90,
+                                  height: 90,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
                       ),
                     ),
                     Text(
                       displayName,
                       style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontFamily: 'SFTS',
-                          fontSize: 20),
+                        fontWeight: FontWeight.w600,
+                        fontFamily: 'SFTS',
+                        fontSize: 20,
+                      ),
                     ),
                     Text(
                       userEmail,

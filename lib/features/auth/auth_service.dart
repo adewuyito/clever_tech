@@ -38,4 +38,8 @@ class AuthService implements AuthProvider {
   @override
   Future<void> updateDisplayName({required String name}) =>
       provider.updateDisplayName(name: name);
+
+  @override
+  Future<void> updateProfilePicture({required String photoUrl}) =>
+      provider.updateProfilePicture(photoUrl: photoUrl);
 }

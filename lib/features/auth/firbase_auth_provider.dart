@@ -56,8 +56,8 @@ class FirebaseAuthProvider implements AuthProvider {
     final user = _auth.currentUser;
     if (user != null) {
       user.reload();
-      }
-      return null;
+    }
+    return null;
   }
 
   @override
@@ -127,6 +127,22 @@ class FirebaseAuthProvider implements AuthProvider {
       }
     } on GenericAuthException {
       log('Error updating display name');
+    } on FirebaseAuthException catch (e) {
+      log(e.code);
+    }
+  }
+
+  @override
+  Future<void> updateProfilePicture({required String photoUrl}) async {
+    var user = _auth.currentUser;
+    try {
+      if (user != null) {
+        await user.updatePhotoURL(photoUrl);
+      } else {
+        throw UserNotFoundAuthException();
+      }
+    } on GenericAuthException {
+      log('Error updating profile picture');
     } on FirebaseAuthException catch (e) {
       log(e.code);
     }

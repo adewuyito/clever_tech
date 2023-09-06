@@ -37,27 +37,27 @@ class _AutomationState extends State<Automation> {
       });
     }
   }
-  updateItemCount(List<bool>? box){
-  List<bool>? switchState = box;
-  if (switchState != null){
-    final trueList = switchState.every((element) => true);
-    log(trueList.toString());
-    int trueState = 0;
-    for(int i = 0; i < switchState.length; i++){
-      if (switchState[i] == true){
-        trueState++;
+
+  updateItemCount(List<bool>? box) {
+    List<bool>? switchState = box;
+    if (switchState != null) {
+      final trueList = switchState.every((element) => true);
+      log(trueList.toString());
+      int trueState = 0;
+      for (int i = 0; i < switchState.length; i++) {
+        if (switchState[i] == true) {
+          trueState++;
+        }
       }
+      final count = switchState.length;
+      setState(() {
+        activeScene = trueState;
+        activeDevice = count;
+      });
     }
-    final count = switchState.length;
-    setState(() {
-      activeScene = trueState;
-      activeDevice = count;
-    });
   }
-}
 
-
-@override
+  @override
   void initState() {
     super.initState();
     setItemCount();
@@ -71,7 +71,7 @@ class _AutomationState extends State<Automation> {
       valueListenable: boxListenable,
       builder: (context, box, _) {
         List<bool>? boolList = box.get('bool_list')?.cast<bool>();
-        return  Scaffold(
+        return Scaffold(
           backgroundColor: Colors.white,
           body: SafeArea(
             minimum: const EdgeInsets.only(
@@ -118,14 +118,19 @@ class _AutomationState extends State<Automation> {
                             ),
                             TextButton(
                               onPressed: () {
-                                Navigator.of(context).push(MaterialPageRoute(builder: (context) => const AutomationCopy()));
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => const Home(),
+                                  ),
+                                );
                               },
                               child: Text(
                                 'View all',
                                 style: TextStyle(
-                                    color: colorGrey,
-                                    fontSize: 11,
-                                    letterSpacing: 0.07),
+                                  color: colorGrey,
+                                  fontSize: 11,
+                                  letterSpacing: 0.07,
+                                ),
                               ),
                             ),
                           ],
@@ -139,7 +144,8 @@ class _AutomationState extends State<Automation> {
                             return ToggledScenes(
                               index: index,
                               boolList: boolList,
-                              changeList: box.put('bool_list', boolList!.cast<dynamic>()),
+                              changeList: box.put(
+                                  'bool_list', boolList!.cast<dynamic>()),
                             );
                           },
                           separatorBuilder: (BuildContext context, int index) {
@@ -231,13 +237,11 @@ class ActiveScenes extends StatelessWidget {
 }
 
 class ToggledScenes extends StatefulWidget {
-  final  VoidCallback? onChanged;
-  final  Future<void>? changeList;
+  final VoidCallback? onChanged;
+  final Future<void>? changeList;
   final String sceneName;
   final int index;
   final List<bool>? boolList;
-
-
 
   const ToggledScenes({
     super.key,
@@ -255,10 +259,11 @@ class ToggledScenes extends StatefulWidget {
 class _ToggledScenes extends State<ToggledScenes> {
   final String days = 'Everyday';
 
-  action(VoidCallback? button){
+  action(VoidCallback? button) {
     return button = widget.onChanged ?? () {};
   }
-  setList(){
+
+  setList() {
     return widget.changeList;
   }
 
@@ -279,77 +284,75 @@ class _ToggledScenes extends State<ToggledScenes> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     bool value = widget.boolList![widget.index];
-        return Container(
-          alignment: Alignment.center,
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.all(Radius.circular(20)),
-            border: Border.all(color: colorBlack2.withOpacity(0.1)),
-          ),
-          child: Column(
+    return Container(
+      alignment: Alignment.center,
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.all(Radius.circular(20)),
+        border: Border.all(color: colorBlack2.withOpacity(0.1)),
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    // margin: const EdgeInsets.only(right: 15),
-                    decoration: BoxDecoration(
-                        color: Colors.red.withOpacity(0.9),
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(20))),
-                    width: 45,
-                    height: 43,
-                    child: const Icon(
-                      Icons.home,
-                      color: Colors.white,
-                    ),
-                  ),
-                  Switch(
-                    activeTrackColor: colorGreen,
-                    value: value,
-                    onChanged: (bool _) {
-                      setState(() {
-                        value = _;
-                      });
-                      // box.put('bool_list', boolList);
-                      action(widget.onChanged);
-                      setList();
-                    },
-                  ),
-                ],
+              Container(
+                // margin: const EdgeInsets.only(right: 15),
+                decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.9),
+                    borderRadius: const BorderRadius.all(Radius.circular(20))),
+                width: 45,
+                height: 43,
+                child: const Icon(
+                  Icons.home,
+                  color: Colors.white,
+                ),
               ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.sceneName,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 17,
-                          letterSpacing: -.041,
-                        ),
-                      ),
-                      _shedule(),
-                    ],
-                  ),
-                  Icon(
-                    Icons.arrow_forward_ios_rounded,
-                    color: colorGrey2,
-                  ),
-                ],
-              )
+              Switch(
+                activeTrackColor: colorGreen,
+                value: value,
+                onChanged: (bool _) {
+                  setState(() {
+                    value = _;
+                  });
+                  // box.put('bool_list', boolList);
+                  action(widget.onChanged);
+                  setList();
+                },
+              ),
             ],
           ),
-        );
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.sceneName,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 17,
+                      letterSpacing: -.041,
+                    ),
+                  ),
+                  _shedule(),
+                ],
+              ),
+              Icon(
+                Icons.arrow_forward_ios_rounded,
+                color: colorGrey2,
+              ),
+            ],
+          )
+        ],
+      ),
+    );
   }
 }
 

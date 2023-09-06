@@ -21,6 +21,7 @@ class MainApp extends StatefulWidget {
   @override
   State<MainApp> createState() => _MainAppState();
 }
+
 /// TODO Implement Remaining automation pages.
 class _MainAppState extends State<MainApp> {
   bool showAppbar = true;
@@ -65,7 +66,9 @@ class _MainAppState extends State<MainApp> {
     }
   }
 
-  void setIndex(int value) => setState(() {
+  void setIndex(int value) {
+    setState(
+      () {
         selectedIndex = value;
         if (selectedIndex == 3) {
           setState(() {
@@ -74,20 +77,29 @@ class _MainAppState extends State<MainApp> {
         } else {
           showAppbar = true;
         }
-      });
+      },
+    );
+  }
 
-  Widget setVisibility({required int index, required int hideAt,required Row child}){
+  Widget setVisibility({
+    required int index,
+    required int hideAt,
+    required Row child,
+  }) {
     bool visibility = true;
-    if (index == hideAt){
+    if (index == hideAt) {
       setState(() {
         visibility = true;
       });
-    }else{
+    } else {
       setState(() {
         visibility = false;
       });
     }
-    return Visibility(visible: visibility,child: child,);
+    return Visibility(
+      visible: visibility,
+      child: child,
+    );
   }
 
   @override
@@ -143,9 +155,10 @@ class _MainAppState extends State<MainApp> {
                                   AssetImage('assets/icons/hospital.png'),
                                 ),
                               ],
-                            ), index: selectedIndex, hideAt: 0,
-                          )
-                      ),
+                            ),
+                            index: selectedIndex,
+                            hideAt: 0,
+                          )),
                       const PopupMenuDivider(),
                       const PopupMenuItem(
                           padding: EdgeInsets.all(24),
@@ -160,24 +173,25 @@ class _MainAppState extends State<MainApp> {
                           )),
                       const PopupMenuDivider(),
                       PopupMenuItem(
-                          onTap: () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => const MainAutomation()));
-                          },
-                          padding: const EdgeInsets.all(24),
-                          child: setVisibility(
-                            index: selectedIndex,
-                            hideAt: 1,
-                            child: const Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Text('Add new scene'),
-                                ImageIcon(
-                                  AssetImage('assets/icons/message-add.png'),
-                                )
-                              ],
-                            ),
-                          )),
+                        onTap: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => const MainAutomation()));
+                        },
+                        padding: const EdgeInsets.all(24),
+                        child: setVisibility(
+                          index: selectedIndex,
+                          hideAt: 1,
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Text('Add new scene'),
+                              ImageIcon(
+                                AssetImage('assets/icons/message-add.png'),
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
                     ];
                   },
                 ),
@@ -201,10 +215,17 @@ class _MainAppState extends State<MainApp> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: 'Home'),
           BottomNavigationBarItem(
-              icon: Icon(Icons.add_box_rounded), label: 'Automation'),
+            icon: Icon(Icons.add_box_rounded),
+            label: 'Automation',
+          ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.insert_chart), label: 'Report'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Account'),
+            icon: Icon(Icons.insert_chart),
+            label: 'Report',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Account',
+          ),
         ],
       ),
     );

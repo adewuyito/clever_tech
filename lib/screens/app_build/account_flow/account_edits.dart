@@ -1,12 +1,15 @@
 import 'dart:developer';
-import 'dart:typed_data';
+import 'dart:io';
 
 import 'package:clever_tech/data/colors.dart';
+import 'package:clever_tech/features/auth/auth_service.dart';
 import 'package:clever_tech/services/image_picker_service.dart';
 import 'package:clever_tech/widgets/button_widgets.dart';
+import 'package:clever_tech/widgets/snackbar_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class EditAccount extends StatefulWidget {
   const EditAccount({super.key});
@@ -18,20 +21,28 @@ class EditAccount extends StatefulWidget {
 class _EditAccountState extends State<EditAccount> {
   bool isEditable = true;
   final _auth = FirebaseAuth.instance;
-  late String profileName = '';
+  LocalImage localImage = LocalImage();
+  Reference referenceRoot = FirebaseStorage.instance.ref();
   late TextEditingController? _name = TextEditingController();
-  final LocalImage localImage = LocalImage();
 
-  Uint8List? _profileImage;
+  late XFile? image;
 
-  setImage() {
-    Uint8List img = localImage.pickImage(ImageSource.gallery, context);
-    setState(() {
-      _profileImage = img;
-    });
+  setImage(XFile file) async {
+    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+    Reference referenceDirImages = referenceRoot.child('profile_pictures');
+
+    Reference referenceImage = referenceDirImages.child(fileName);
+
+    try {
+      await referenceImage.putFile(File(file.path));
+      final profileImage = await referenceImage.getDownloadURL();
+      await AuthService.firebase().updateProfilePicture(photoUrl: profileImage);
+    } catch (_) {
+      log(_.toString());
+    }
   }
 
-  Widget _profilePhoto() {
+  Widget _profilePhoto(String? image) {
     return Container(
       height: 95,
       padding: const EdgeInsets.all(16),
@@ -51,17 +62,29 @@ class _EditAccountState extends State<EditAccount> {
                   letterSpacing: -.41,
                 )),
           ),
-          Stack(children: [
-            (_profileImage != null)
-                ? CircleAvatar(
-                    radius: 24,
-                    backgroundImage: MemoryImage(_profileImage!),
+          CircleAvatar(
+            backgroundColor: colorGrey2,
+            radius: 26,
+            child: image != null
+                ? ClipOval(
+                    child: Image(
+                      image: NetworkImage(image),
+                      width: 48,
+                      height: 48,
+                      fit: BoxFit.cover,
+                    ),
                   )
-                : const CircleAvatar(
-                    radius: 24,
-                    backgroundImage: AssetImage('assets/images/image_a.jpg'),
+                : const ClipOval(
+                    child: Image(
+                      image: AssetImage(
+                        'assets/icons/profile_image.png',
+                      ),
+                      width: 48,
+                      height: 48,
+                      fit: BoxFit.cover,
+                    ),
                   ),
-          ]),
+          ),
           const SizedBox(
             width: 16,
           ),
@@ -74,8 +97,7 @@ class _EditAccountState extends State<EditAccount> {
     );
   }
 
-  Widget _profileName() {
-    const String name = 'Timothy';
+  Widget _profileName(String name) {
     return Container(
       height: 70,
       padding: const EdgeInsets.all(16),
@@ -98,7 +120,7 @@ class _EditAccountState extends State<EditAccount> {
             ),
           ),
           Text(
-            profileName,
+            name,
             style: TextStyle(
                 fontSize: 13, letterSpacing: -0.08, color: colorGrey2),
           ),
@@ -183,37 +205,25 @@ class _EditAccountState extends State<EditAccount> {
             ),
           ),
           SizedBox(
-              width: 90,
-              child: EButton(
-                  label: 'Save',
-                  onPressed: () async {
-                    final name = _name?.text;
-                    final user = _auth.currentUser;
-                    try {
-                      await user!.updateDisplayName(name);
-                      user.reload();
-                      getCurrentUser();
-                      changeState();
-                    } on FirebaseAuthException catch (e) {
-                      log(e.code);
-                    }
-                  })),
+            width: 90,
+            child: EButton(
+              label: 'Save',
+              onPressed: () async {
+                final name = _name?.text;
+                final user = _auth.currentUser;
+                try {
+                  await user!.updateDisplayName(name);
+                  user.reload();
+                  changeState();
+                } on FirebaseAuthException catch (e) {
+                  log(e.code);
+                }
+              },
+            ),
+          ),
         ],
       ),
     );
-  }
-
-  void getCurrentUser() {
-    try {
-      final user = _auth.currentUser;
-      if (user != null) {
-        setState(() {
-          profileName = user.displayName!;
-        });
-      }
-    } on FirebaseAuthException catch (e) {
-      log(e.toString());
-    }
   }
 
   void changeState() {
@@ -226,8 +236,6 @@ class _EditAccountState extends State<EditAccount> {
   void initState() {
     _name = TextEditingController();
     super.initState();
-
-    getCurrentUser();
   }
 
   @override
@@ -255,31 +263,53 @@ class _EditAccountState extends State<EditAccount> {
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
         ),
       ),
-      body: SafeArea(
-        minimum: const EdgeInsets.only(right: 17, left: 17),
-        child: Column(
-          children: [
-            _profilePhoto(),
-            const SizedBox(height: 16),
-            GestureDetector(
-              onTap: () {
-                changeState();
-                log(isEditable.toString());
-              },
-              child: Visibility(
-                visible: isEditable,
-                child: _profileName(),
-              ),
+      body: StreamBuilder<User?>(
+        stream: _auth.userChanges(),
+        builder: (context, snapshot) {
+          final user = snapshot.data;
+          final displayName = user?.displayName ?? 'N/A';
+          final profileImage = user?.photoURL;
+
+          return SafeArea(
+            minimum: const EdgeInsets.only(right: 17, left: 17),
+            child: Column(
+              children: [
+                GestureDetector(
+                  onTap: () async {
+                    image = await localImage.pickImage(ImageSource.gallery);
+                    if (image != null) {
+                      await setImage(image!);
+                    } else {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(kSnackBar('No image selected'));
+                      }
+                    }
+                  },
+                  child: _profilePhoto(profileImage),
+                ),
+                const SizedBox(height: 16),
+                GestureDetector(
+                  onTap: () {
+                    changeState();
+                    log(isEditable.toString());
+                  },
+                  child: Visibility(
+                    visible: isEditable,
+                    child: _profileName(displayName),
+                  ),
+                ),
+                Visibility(
+                  visible: !isEditable,
+                  child: _updateName(),
+                ),
+                const SizedBox(height: 16),
+                _profileTime(),
+                const SizedBox(height: 16),
+              ],
             ),
-            Visibility(
-              visible: !isEditable,
-              child: _updateName(),
-            ),
-            const SizedBox(height: 16),
-            _profileTime(),
-            const SizedBox(height: 16),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

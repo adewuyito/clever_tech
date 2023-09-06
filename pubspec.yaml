@@ -48,7 +48,10 @@ dependencies:
   geolocator: ^9.0.2
   geocoding: ^2.1.0
   location: ^5.0.3
-  image_picker: ^1.0.2
+  image_picker: ^1.0.4
+  video_player: ^2.7.1
+  mime: ^1.0.4
+  firebase_storage: ^11.2.6
 
 
 dev_dependencies:
@@ -85,6 +88,7 @@ flutter:
     - assets/images/image_e.jpg
     - assets/icons/hospital.png
     - assets/icons/message-add.png
+    - assets/icons/profile_image.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

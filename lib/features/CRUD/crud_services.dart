@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:clever_tech/constants/crud_constants.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
@@ -64,18 +66,27 @@ class DataBaseService {
 
   Future<DatabaseUser> createUser({required String email}) async {
     final db = _getDatabase();
-    final results = db.query(userTable, limit: 1,
-        where: 'email = ?',
-        whereArgs: [email.toLowerCase()]);
-    // if (results.isNotEmpty) {
-    //   throw UserAlreadyExists();
-    // }
+    final results = await db.query(
+      userTable,
+      limit: 1,
+      where: 'email = ?',
+      whereArgs: [email.toLowerCase()],
+    );
+    if (results.isNotEmpty) {
+      throw UserAlreadyExists();
+    }
 
-    final userId = await db.insert(userTable, {
-      emailColumn: email.toLowerCase()
-    });
+    final userId = await db.insert(
+      userTable,
+      {emailField: email.toLowerCase()},
+    );
 
-    return DatabaseUser(id: userId, email: email);
+    final data = DatabaseUser(
+      id: userId,
+      email: email,
+    );
+
+    return data;
   }
 }
 
@@ -83,17 +94,30 @@ class DatabaseUser {
   final int id;
   final String email;
   final String? displayName;
+  List<Rooms>? rooms;
 
-  const DatabaseUser({
+  DatabaseUser({
     required this.id,
     required this.email,
+    this.rooms,
     this.displayName,
   });
 
-  DatabaseUser.fromRow(Map<String, dynamic> map)
-      : id = map[idColumn] as int,
-        email = map[emailColumn] as String,
-        displayName = map[displayNameColumn] as String?;
+  factory DatabaseUser.fromJson(Map<String, dynamic> map) => DatabaseUser(
+        id: map[idField].toDouble(),
+        email: map[emailField].toString(),
+        displayName: map[displayNameField].toString(),
+        rooms: List<Rooms>.from(
+          map[roomField].map((rooms) => Rooms.fromJson(rooms)),
+        ),
+      );
+
+  Map<String, dynamic> toJson() => {
+        idField: id,
+        emailField: email,
+        displayNameField: displayName,
+        roomField: List<dynamic>.from(rooms!.map((x) => x.toJson)),
+      };
 
   @override
   String toString() =>
@@ -104,4 +128,58 @@ class DatabaseUser {
 
   @override
   int get hashCode => id.hashCode;
+}
+
+class Rooms {
+  String roomName;
+  bool status;
+  List<Devices> devices;
+
+  Rooms({
+    required this.roomName,
+    required this.status,
+    required this.devices,
+  });
+
+  factory Rooms.fromJson(Map<String, dynamic> rooms) => Rooms(
+        roomName: rooms[roomNameField].toString(),
+        status: (rooms[roomStatusField].toString() == "true") ? true : false,
+        devices: List<Devices>.from(
+          rooms[deviceField].map((devices) => Devices.fromJson(devices)),
+        ),
+      );
+
+  Map<String, dynamic> toJson() => {
+        roomNameField: roomName,
+        roomStatusField: status,
+        deviceField: List<dynamic>.from(devices.map((x) => x.toJson())),
+      };
+}
+
+enum DeviceType {
+  bells,
+  camera,
+  sockets,
+  kettels,
+  thermostat,
+}
+
+class Devices {
+  String deviceName;
+  DeviceType deviceType;
+
+  Devices({
+    required this.deviceName,
+    required this.deviceType,
+  });
+
+  factory Devices.fromJson(Map<String, dynamic> devices) => Devices(
+        deviceName: devices[deviceNameField].toString(),
+        deviceType: devices[deviceTypeField].cast<DeviceType>(),
+      );
+
+  Map<String, dynamic> toJson() => {
+        deviceNameField: deviceName,
+        deviceTypeField: deviceType,
+      };
 }

@@ -24,6 +24,7 @@ class _EditAccountState extends State<EditAccount> {
   LocalImage localImage = LocalImage();
   Reference referenceRoot = FirebaseStorage.instance.ref();
   late TextEditingController? _name = TextEditingController();
+  String lastFileName = '';
 
   late XFile? image;
 
@@ -32,6 +33,11 @@ class _EditAccountState extends State<EditAccount> {
     Reference referenceDirImages = referenceRoot.child('profile_pictures');
 
     Reference referenceImage = referenceDirImages.child(fileName);
+    setState(
+      () {
+        lastFileName = fileName;
+      }
+    );
 
     try {
       await referenceImage.putFile(File(file.path));
@@ -39,6 +45,17 @@ class _EditAccountState extends State<EditAccount> {
       await AuthService.firebase().updateProfilePicture(photoUrl: profileImage);
     } catch (_) {
       log(_.toString());
+    }
+  }
+
+  deleteImage(String path) async {
+    final pictureRef = referenceRoot.child(path);
+    try {
+      pictureRef.delete();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        kSnackBar('Error Changing profile'),
+      );
     }
   }
 
@@ -269,13 +286,13 @@ class _EditAccountState extends State<EditAccount> {
           final user = snapshot.data;
           final displayName = user?.displayName ?? 'N/A';
           final profileImage = user?.photoURL;
-
           return SafeArea(
             minimum: const EdgeInsets.only(right: 17, left: 17),
             child: Column(
               children: [
                 GestureDetector(
                   onTap: () async {
+                    deleteImage(lastFileName);
                     image = await localImage.pickImage(ImageSource.gallery);
                     if (image != null) {
                       await setImage(image!);

@@ -517,7 +517,7 @@ class _CardWidgetState extends State<CardWidget> {
                 'assets/images/image_c.jpg',
                 fit: BoxFit.fitWidth,
                 height: 97,
-                width: 171,
+                width: MediaQuery.sizeOf(context).width,
                 alignment: const Alignment(0.7, 0.5),
               ),
               Positioned.directional(

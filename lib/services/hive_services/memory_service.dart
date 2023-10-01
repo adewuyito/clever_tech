@@ -1,6 +1,4 @@
-import 'dart:developer';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:hive/hive.dart';
 
 class SharedPreferenceModel {
   static final Future<SharedPreferences> _preferences = getInstance();

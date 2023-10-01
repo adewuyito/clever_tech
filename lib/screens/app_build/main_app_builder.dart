@@ -1,10 +1,12 @@
 import 'dart:developer';
+
 import 'package:clever_tech/screens/app_build/account_flow/account_screen.dart';
 import 'package:clever_tech/screens/app_build/automation_flow/automation.dart';
 import 'package:clever_tech/screens/app_build/home/home_screen.dart';
 import 'package:clever_tech/screens/app_build/new_device_flow/add_new_device.dart';
 import 'package:clever_tech/screens/app_build/report_flow/report_screen.dart';
 import 'package:clever_tech/data/colors.dart';
+import 'package:clever_tech/screens/pop_up_build/room_flow/main_room.dart';
 import 'package:flutter/material.dart';
 
 import 'automation_flow/new_automation/main_automation.dart';
@@ -22,10 +24,13 @@ class MainApp extends StatefulWidget {
   State<MainApp> createState() => _MainAppState();
 }
 
-/// TODO Implement Remaining automation pages.
 class _MainAppState extends State<MainApp> {
   bool showAppbar = true;
+  int selectedIndex = 0;
   var appBarHeight = AppBar().preferredSize.height;
+
+  late List<bool> setVisibility;
+
   List pages = [
     const Home(),
     const Automation(),
@@ -33,25 +38,6 @@ class _MainAppState extends State<MainApp> {
     const Account(),
     // const EditAccount(),
   ];
-  List pagesTitle = [
-    const Home(),
-    const Automation(),
-    const Reports(),
-    const Account(),
-    // const EditAccount(),
-  ];
-  int selectedIndex = 0;
-
-  hideAppbar() {
-    log(selectedIndex.toString());
-    if (selectedIndex == 3) {
-      setState(() {
-        showAppbar = !showAppbar;
-      });
-    } else {
-      showAppbar = true;
-    }
-  }
 
   String setTitle() {
     switch (selectedIndex) {
@@ -66,40 +52,52 @@ class _MainAppState extends State<MainApp> {
     }
   }
 
-  void setIndex(int value) {
-    setState(
-      () {
-        selectedIndex = value;
-        if (selectedIndex == 3) {
-          setState(() {
-            showAppbar = !showAppbar;
-          });
-        } else {
+  void showAppBar(int index) {
+    switch (index) {
+      case 3:
+        setState(() {
+          showAppbar = false;
+        });
+        break;
+      default:
+        setState(() {
           showAppbar = true;
-        }
-      },
-    );
+        });
+    }
   }
 
-  Widget setVisibility({
-    required int index,
-    required int hideAt,
-    required Row child,
-  }) {
-    bool visibility = true;
-    if (index == hideAt) {
-      setState(() {
-        visibility = true;
-      });
-    } else {
-      setState(() {
-        visibility = false;
-      });
+  List<bool> setPopUp() {
+    final list = [true, true, false];
+    return list;
+  }
+
+  void formatPopUp(int index, List<bool> list) {
+    switch (index) {
+      case 0:
+        setState(() {
+          list[0] = true;
+          list[2] = false;
+        });
+        break;
+      case 1:
+        setState(() {
+          list[0] = false;
+          list[2] = true;
+        });
+        break;
+      default:
+        setState(() {
+          list[0] = true;
+          list[1] = true;
+          list[2] = true;
+        });
     }
-    return Visibility(
-      visible: visibility,
-      child: child,
-    );
+  }
+
+  @override
+  void initState() {
+    setVisibility = setPopUp();
+    super.initState();
   }
 
   @override
@@ -122,7 +120,6 @@ class _MainAppState extends State<MainApp> {
                 ),
               ),
               leading: Container(
-                // width: 274,
                 decoration: BoxDecoration(
                   borderRadius: const BorderRadius.all(Radius.circular(20)),
                   color: colorGrey3,
@@ -140,58 +137,31 @@ class _MainAppState extends State<MainApp> {
                   icon: const Icon(Icons.add),
                   itemBuilder: (context) {
                     return [
-                      PopupMenuItem(
-                          onTap: () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => const NewDevice()));
-                          },
-                          padding: const EdgeInsets.all(24),
-                          child: setVisibility(
-                            child: const Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Text('Add new device'),
-                                ImageIcon(
-                                  AssetImage('assets/icons/hospital.png'),
-                                ),
-                              ],
-                            ),
-                            index: selectedIndex,
-                            hideAt: 0,
-                          )),
-                      const PopupMenuDivider(),
-                      const PopupMenuItem(
-                          padding: EdgeInsets.all(24),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Text('Add new room'),
-                              ImageIcon(
-                                AssetImage('assets/icons/message-add.png'),
-                              )
-                            ],
-                          )),
-                      const PopupMenuDivider(),
-                      PopupMenuItem(
-                        onTap: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => const MainAutomation()));
-                        },
-                        padding: const EdgeInsets.all(24),
-                        child: setVisibility(
-                          index: selectedIndex,
-                          hideAt: 1,
-                          child: const Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Text('Add new scene'),
-                              ImageIcon(
-                                AssetImage('assets/icons/message-add.png'),
-                              )
-                            ],
-                          ),
+                      if (setVisibility[0] == true)
+                        const KPopUpMenuItem(
+                          name: 'New Device',
+                          icons: deviceIcon,
+                          // topMargin: 26,
                         ),
-                      ),
+                      if (setVisibility[0] == true)
+                        const PopupMenuDivider(
+                          height: 1,
+                        ),
+                      if (setVisibility[1] == true)
+                        const KPopUpMenuItem(
+                          name: 'New Room',
+                          icons: deviceIcon,
+                        ),
+                      if (setVisibility[2] == true)
+                        const PopupMenuDivider(
+                          height: 1,
+                        ),
+                      if (setVisibility[2] == true)
+                        const KPopUpMenuItem(
+                          name: 'New Scene',
+                          icons: deviceIcon,
+                          // bottomMargin: 26,
+                        ),
                     ];
                   },
                 ),
@@ -200,29 +170,33 @@ class _MainAppState extends State<MainApp> {
             )
           : null,
       body: pages[selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: selectedIndex,
         backgroundColor: Colors.white,
-        elevation: 0,
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        type: BottomNavigationBarType.fixed,
-        selectedFontSize: 0,
-        unselectedFontSize: 0,
-        selectedItemColor: colorGreen,
-        enableFeedback: false,
-        onTap: setIndex,
-        currentIndex: selectedIndex,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: 'Home'),
-          BottomNavigationBarItem(
+        surfaceTintColor: Colors.white,
+        indicatorColor: colorGreen.withAlpha(100),
+        onDestinationSelected: (index) {
+          setState(() {
+            selectedIndex = index;
+          });
+          showAppBar(index);
+          formatPopUp(index, setVisibility);
+        },
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+        destinations: const <Widget>[
+          NavigationDestination(
+            icon: Icon(Icons.home_filled),
+            label: 'Home',
+          ),
+          NavigationDestination(
             icon: Icon(Icons.add_box_rounded),
             label: 'Automation',
           ),
-          BottomNavigationBarItem(
+          NavigationDestination(
             icon: Icon(Icons.insert_chart),
             label: 'Report',
           ),
-          BottomNavigationBarItem(
+          NavigationDestination(
             icon: Icon(Icons.person),
             label: 'Account',
           ),
@@ -231,3 +205,85 @@ class _MainAppState extends State<MainApp> {
     );
   }
 }
+
+class KPopUpMenuItem extends PopupMenuEntry<PopUp> {
+  final String name;
+  final String icons;
+  final double topMargin;
+  final double bottomMargin;
+
+  const KPopUpMenuItem({
+    super.key,
+    this.topMargin = 16,
+    this.bottomMargin = 16,
+    required this.name,
+    required this.icons,
+  });
+
+  @override
+  State createState() => _KPupUpMenueItem();
+
+  @override
+  double get height => 56;
+
+  @override
+  bool represents(Object? value) {
+    return value is PopUp &&
+        ((value == PopUp.newDevice && name == 'New Device') ||
+            (value == PopUp.newRoom && name == 'New Room') ||
+            (value == PopUp.newScene && name == 'New Scene'));
+  }
+}
+
+class _KPupUpMenueItem extends State<KPopUpMenuItem> {
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        PopUp selectedValue;
+        switch (widget.name) {
+          case 'New Device':
+            selectedValue = PopUp.newDevice;
+            break;
+          case 'New Room':
+            selectedValue = PopUp.newRoom;
+            break;
+          case 'New Scene':
+            selectedValue = PopUp.newScene;
+            break;
+          default:
+            selectedValue = PopUp.newDevice;
+        }
+        Navigator.pop(context, selectedValue);
+        // log('Selected popup is: ${selectedValue.toString()}');
+      },
+      child: Container(
+        margin: EdgeInsets.only(
+          left: 26,
+          right: 26,
+          top: widget.topMargin,
+          bottom: widget.bottomMargin,
+        ),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 24,
+          vertical: 16,
+        ),
+        width: 226,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(widget.name),
+            ImageIcon(
+              AssetImage(widget.icons),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Asset routes
+const String deviceIcon = 'assets/icons/hospital.png';
+const String roomIcon = 'assets/icons/message-add.png';
+const String sceneIcon = 'assets/icons/message-add.png';

@@ -13,8 +13,7 @@ class AuthService implements AuthProvider {
     required String name,
     required String email,
     required String password,
-  }) =>
-      provider.createUser(email: email, password: password, name: name);
+  }) => provider.createUser(email: email, password: password, name: name);
 
   @override
   AuthUser? get currentUser => provider.currentUser;
@@ -23,8 +22,7 @@ class AuthService implements AuthProvider {
   Future<AuthUser> login({
     required String email,
     required String password,
-  }) =>
-      provider.login(email: email, password: password);
+  }) => provider.login(email: email, password: password);
 
   @override
   Future<void> logout() => provider.logout();

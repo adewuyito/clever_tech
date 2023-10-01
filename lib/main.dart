@@ -9,7 +9,6 @@ import 'firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'constants/hive_constants.dart';
 
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Hive Initialization
@@ -32,8 +31,8 @@ class Base extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
-          useMaterial3: true,
-          fontFamily: 'SFTS'
+        useMaterial3: true,
+        fontFamily: 'SFTS'
       ),
       home: const Homebuilder(),
     );
@@ -46,23 +45,20 @@ class Homebuilder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-
-        future: AuthService.firebase().initialize(),
-        builder: (context, snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.done:
-              final user = AuthService.firebase().currentUser;
-              if (user != null){
-                return const MainApp();
-              }
-              else {
-                return const Splash();
-              }
-            default:
-              return const Login();
-          }
-        },
-      );
+      future: AuthService.firebase().initialize(),
+      builder: (context, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.done:
+            final user = AuthService.firebase().currentUser;
+            if (user != null) {
+              return const MainApp();
+            } else {
+              return const Splash();
+            }
+          default:
+            return const Login();
+        }
+      },
+    );
   }
 }
-

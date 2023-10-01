@@ -17,50 +17,54 @@ class Automation extends StatefulWidget {
 class _AutomationState extends State<Automation> {
   int activeScene = 0;
   int activeDevice = 0;
-  final Box<List> box = Hive.box<List>(keyBool);
+  late List<bool>? _active;
+  late Box<List> _box;
 
-  setItemCount() {
-    List<bool>? switchState = box.get('bool_list')?.cast<bool>();
-    if (switchState != null) {
-      final trueList = switchState.every((element) => true);
-      log(trueList.toString());
-      int trueState = 0;
-      for (int i = 0; i < switchState.length; i++) {
-        if (switchState[i] == true) {
-          trueState++;
-        }
-      }
-      final count = switchState.length;
-      setState(() {
-        activeScene = trueState;
-        activeDevice = count;
-      });
+  List<bool>? setItemCount() {
+    List<bool>? switchState = _getBox();
+    if (switchState == null) {
+      return null;
     }
+    Iterable<bool> trueList = switchState.where(
+      (element) => element == true || element == false,
+    );
+    // log('Hive box holds --> ${switchState.toString()}');
+    int trueState = trueList.where((element) => element == true).length;
+    final count = switchState.length;
+    // log('Active scense $trueState   Active Devices $count');
+    setState(() {
+      activeScene = trueState;
+      activeDevice = count;
+    });
+    return trueList.toList();
   }
 
-  updateItemCount(List<bool>? box) {
-    List<bool>? switchState = box;
-    if (switchState != null) {
-      final trueList = switchState.every((element) => true);
-      log(trueList.toString());
-      int trueState = 0;
-      for (int i = 0; i < switchState.length; i++) {
-        if (switchState[i] == true) {
-          trueState++;
-        }
-      }
-      final count = switchState.length;
-      setState(() {
-        activeScene = trueState;
-        activeDevice = count;
-      });
-    }
+  Future<void> updateBox(List<dynamic> value) async {
+    _box.put('bool_list', value);
+  }
+
+  List<bool>? _getBox() {
+    final box = _box;
+    return box.get('bool_list')?.cast<bool>();
+  }
+
+  Box<List> setBox() {
+    final box = Hive.box<List>(keyBool);
+    return box;
   }
 
   @override
   void initState() {
+    _box = setBox();
+    _active = setItemCount();
     super.initState();
-    setItemCount();
+  }
+
+  @override
+  void dispose() {
+    final recentBox = _active!.cast<dynamic>();
+    updateBox(recentBox);
+    super.dispose();
   }
 
   @override
@@ -70,7 +74,13 @@ class _AutomationState extends State<Automation> {
     return ValueListenableBuilder(
       valueListenable: boxListenable,
       builder: (context, box, _) {
-        List<bool>? boolList = box.get('bool_list')?.cast<bool>();
+        _active ??= <bool>[];
+        int listLength = _active!.length;
+        int activeLength = _active!
+            .where(
+              (element) => element == true,
+            )
+            .length;
         return Scaffold(
           backgroundColor: Colors.white,
           body: SafeArea(
@@ -87,7 +97,7 @@ class _AutomationState extends State<Automation> {
                       ActiveScenes(
                         color_1: colorGreen,
                         name: 'Active Scenes',
-                        sceneNumber: activeScene.toString(),
+                        sceneNumber: activeLength.toString(),
                       ),
                       const SizedBox(
                         width: 16,
@@ -95,12 +105,11 @@ class _AutomationState extends State<Automation> {
                       ActiveScenes(
                         color_1: colorPurple,
                         name: 'Active Devices',
-                        sceneNumber: activeDevice.toString(),
+                        sceneNumber: listLength.toString(),
                       )
                     ],
                   ),
                 ),
-                const SizedBox(height: 8),
                 Expanded(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -114,7 +123,9 @@ class _AutomationState extends State<Automation> {
                             const Text(
                               'Regular scenes',
                               style: TextStyle(
-                                  fontWeight: FontWeight.w600, fontSize: 24),
+                                fontWeight: FontWeight.w600,
+                                fontSize: 24,
+                              ),
                             ),
                             TextButton(
                               onPressed: () {
@@ -139,13 +150,12 @@ class _AutomationState extends State<Automation> {
                       Expanded(
                         child: ListView.separated(
                           shrinkWrap: true,
-                          itemCount: 5,
+                          itemCount: listLength,
                           itemBuilder: (BuildContext context, int index) {
                             return ToggledScenes(
                               index: index,
-                              boolList: boolList,
-                              changeList: box.put(
-                                  'bool_list', boolList!.cast<dynamic>()),
+                              boolList: _active,
+                              changeList: updateBox(_active!.cast<dynamic>()),
                             );
                           },
                           separatorBuilder: (BuildContext context, int index) {
@@ -237,8 +247,8 @@ class ActiveScenes extends StatelessWidget {
 }
 
 class ToggledScenes extends StatefulWidget {
-  final VoidCallback? onChanged;
-  final Future<void>? changeList;
+  final VoidCallback? whenChanged;
+  final Future<void> changeList;
   final String sceneName;
   final int index;
   final List<bool>? boolList;
@@ -247,8 +257,8 @@ class ToggledScenes extends StatefulWidget {
     super.key,
     required this.boolList,
     this.sceneName = '',
-    this.onChanged,
-    this.changeList,
+    this.whenChanged,
+    required this.changeList,
     required this.index,
   });
 
@@ -259,13 +269,9 @@ class ToggledScenes extends StatefulWidget {
 class _ToggledScenes extends State<ToggledScenes> {
   final String days = 'Everyday';
 
-  action(VoidCallback? button) {
-    return button = widget.onChanged ?? () {};
-  }
+  action(VoidCallback? button) => button = widget.whenChanged ?? () {};
 
-  setList() {
-    return widget.changeList;
-  }
+  setList() => widget.changeList;
 
   Widget _shedule() {
     return Row(
@@ -276,8 +282,11 @@ class _ToggledScenes extends State<ToggledScenes> {
         ),
         Container(
           margin: const EdgeInsets.only(left: 5, right: 2),
-          child: Icon(Icons.access_time_filled_rounded,
-              color: colorGrey, size: 14),
+          child: Icon(
+            Icons.access_time_filled_rounded,
+            color: colorGrey,
+            size: 14,
+          ),
         ),
         Text('2:30 pm', style: TextStyle(color: colorGrey, fontSize: 12)),
       ],
@@ -286,6 +295,7 @@ class _ToggledScenes extends State<ToggledScenes> {
 
   @override
   Widget build(BuildContext context) {
+    /// Getting the value from the List<bool> at it's index
     bool value = widget.boolList![widget.index];
     return Container(
       alignment: Alignment.center,
@@ -303,11 +313,13 @@ class _ToggledScenes extends State<ToggledScenes> {
               Container(
                 // margin: const EdgeInsets.only(right: 15),
                 decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.9),
-                    borderRadius: const BorderRadius.all(Radius.circular(20))),
+                  color: Colors.red.withOpacity(0.9),
+                  borderRadius: const BorderRadius.all(Radius.circular(20)),
+                ),
                 width: 45,
                 height: 43,
                 child: const Icon(
+                  /// Edit to get the icon from the database
                   Icons.home,
                   color: Colors.white,
                 ),
@@ -317,10 +329,9 @@ class _ToggledScenes extends State<ToggledScenes> {
                 value: value,
                 onChanged: (bool _) {
                   setState(() {
-                    value = _;
+                    widget.boolList![widget.index] = _;
                   });
-                  // box.put('bool_list', boolList);
-                  action(widget.onChanged);
+                  action(widget.whenChanged);
                   setList();
                 },
               ),
@@ -355,7 +366,6 @@ class _ToggledScenes extends State<ToggledScenes> {
     );
   }
 }
-
 
 // class ToggledScenes extends StatefulWidget {
 //   final  VoidCallback? onChanged;

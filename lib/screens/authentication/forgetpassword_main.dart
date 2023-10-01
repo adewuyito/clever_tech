@@ -54,26 +54,30 @@ class _ForgetPassWordState extends State<ForgetPassWord> {
               children: <Widget>[
                 InputMail(
                   nextPage: controller,
+                  onPressed: () {},
                 ),
                 InputOTP(
                   nextPage: controller,
                   formKey: _formKey,
+                  onPressed: () {},
                 ),
                 InputPassword(
                   nextPage: controller,
+                  onPressed: () {},
                 ),
               ],
             ),
-          )),
+          ),
+        ),
     );
   }
 }
 
 class InputMail extends StatefulWidget {
-  PageController nextPage;
+  final PageController nextPage;
   final VoidCallback? onPressed;
 
-  InputMail({super.key, this.onPressed, required this.nextPage});
+  const InputMail({super.key, required this.onPressed, required this.nextPage});
 
   @override
   State<InputMail> createState() => _InputMailState();
@@ -151,16 +155,17 @@ class _InputMailState extends State<InputMail> {
 
 class InputOTP extends StatelessWidget {
   final GlobalKey<FormState> formKey;
-  PageController nextPage;
+  final PageController nextPage;
   final VoidCallback? onPressed;
 
   // final email = TextEditingController();
 
-  InputOTP(
-      {super.key,
-      this.onPressed,
-      required this.nextPage,
-      required this.formKey});
+  const InputOTP({
+    super.key,
+    required this.onPressed,
+    required this.nextPage,
+    required this.formKey,
+  });
 
   void next() {
     nextPage.nextPage(
@@ -361,12 +366,12 @@ class InputOTP extends StatelessWidget {
 }
 
 class InputPassword extends StatelessWidget {
-  PageController nextPage;
+  final PageController nextPage;
   final VoidCallback? onPressed;
   final _passWord = TextEditingController();
   final _passWordVerify = TextEditingController();
 
-  InputPassword({super.key, this.onPressed, required this.nextPage});
+  InputPassword({super.key, required this.onPressed, required this.nextPage});
 
   void next() {
     nextPage.nextPage(

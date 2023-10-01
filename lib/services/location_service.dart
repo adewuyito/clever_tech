@@ -1,14 +1,14 @@
 import 'dart:developer' show log;
-
 import 'package:geolocator/geolocator.dart';
-
 import 'location_weather_exceptions.dart';
 
 class UserLocation {
 
+
   Future<Position?> _getCurrentLocation() async {
+    final locationService = UserLocation();
+
     try {
-      final locationService = UserLocation();
       bool isAllowed = await locationService.handleLocationPermission();
       if (isAllowed) {
         Position? position = await Geolocator.getLastKnownPosition(
@@ -17,26 +17,27 @@ class UserLocation {
         );
         return position;
       } else {
-        LocationServicePermanentlyException();
+        throw LocationServicePermanentlyException();
       }
     } catch (e) {
       log(e.toString());
     }
+    return null;
   }
 
   Future<Position?> getPosition() async {
-    try{
+    try {
       if (await handleLocationPermission()) {
-          final position = await _getCurrentLocation();
-          return position;
-        }
-      else {
+        final position = await _getCurrentLocation();
+        return position;
+      } else {
         log('getPosition permission model: Error');
       }
     } catch (e) {
       log('getPosition model: Error');
       log(e.toString());
     }
+    return null;
   }
 
   Future<bool> handleLocationPermission() async {

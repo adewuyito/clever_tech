@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:developer';
 import 'package:clever_tech/data/colors.dart';
 import 'package:clever_tech/features/auth/auth_service.dart';
 import 'package:clever_tech/screens/app_build/account_flow/account_edits.dart';
@@ -24,15 +26,15 @@ class _AccountState extends State<Account> {
       body: StreamBuilder<User?>(
         stream: _auth.userChanges(),
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.active) {
-            final user = snapshot.data;
-            final displayName = user?.displayName ?? 'N/A';
-            final userEmail = user?.email ?? '';
-            final userProfilePicture = user?.photoURL;
+          switch (snapshot.connectionState) {
+            case ConnectionState.active:
+              final user = snapshot.data;
+              final displayName = user?.displayName ?? 'N/A';
+              final userEmail = user?.email ?? '';
+              final userProfilePicture = user?.photoURL;
 
-            return SafeArea(
-              minimum: const EdgeInsets.only(right: 17, left: 17),
-              child: SingleChildScrollView(
+              return SafeArea(
+                minimum: const EdgeInsets.only(right: 17, left: 17),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -80,7 +82,7 @@ class _AccountState extends State<Account> {
                           color: colorGrey2),
                     ),
                     Container(
-                      margin: const EdgeInsets.only(top: 86),
+                      margin: const EdgeInsets.symmetric(vertical: 20),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
@@ -103,9 +105,10 @@ class _AccountState extends State<Account> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           AccountCubs(
-                              widgetIcons: Icons.message_rounded,
-                              widgetColor: colorBlue,
-                              widgetText: 'FAQ'),
+                            widgetIcons: Icons.message_rounded,
+                            widgetColor: colorBlue,
+                            widgetText: 'FAQ',
+                          ),
                           AccountCubs(
                             widgetIcons: Icons.mic,
                             widgetColor: colorGreen,
@@ -152,14 +155,14 @@ class _AccountState extends State<Account> {
                     ),
                   ],
                 ),
-              ),
-            );
-          } else {
-            return Center(
-              child: CircularProgressIndicator(
-                color: colorGreen,
-              ),
-            );
+              );
+
+            default:
+              return Center(
+                child: CircularProgressIndicator(
+                  color: colorGreen,
+                ),
+              );
           }
         },
       ),
@@ -172,11 +175,12 @@ class AccountCubs extends StatelessWidget {
   final Color widgetColor;
   final IconData widgetIcons;
 
-  const AccountCubs(
-      {super.key,
-      required this.widgetColor,
-      required this.widgetIcons,
-      required this.widgetText});
+  const AccountCubs({
+    super.key,
+    required this.widgetColor,
+    required this.widgetIcons,
+    required this.widgetText,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -269,13 +273,7 @@ class AccountOptions extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           GestureDetector(
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const MainAutomation(),
-                ),
-              );
-            },
+            onTap: () {},
             child: Container(
               decoration: BoxDecoration(
                 color: colorGrey3,

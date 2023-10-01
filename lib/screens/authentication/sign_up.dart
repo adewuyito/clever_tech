@@ -120,21 +120,22 @@ class _SignUpState extends State<SignUp> {
                   final name = _name.text;
                   final email = _email.text;
                   final password = _password.text;
-                  try{
+                  try {
                     await AuthService.firebase().createUser(
                       name: name,
                       email: email,
                       password: password,
                     );
                     if (!mounted) return;
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const Login()));
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => const Login()));
                   } on EmailAlreadyInUseAuthException {
                     log('Email already in use');
                   } on WeakPasswordAuthException {
                     log('Password is too weak');
                   } on InvalidEmailAuthException {
                     log('Email is invalid');
-                  }  on GenericAuthException {
+                  } on GenericAuthException {
                     log('Something went wrong');
                   } catch (e) {
                     log(e.toString());

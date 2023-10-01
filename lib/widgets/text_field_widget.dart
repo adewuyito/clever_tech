@@ -1,4 +1,3 @@
-import 'package:clever_tech/data/colors.dart';
 import 'package:flutter/material.dart';
 
 class ETextField extends StatefulWidget {

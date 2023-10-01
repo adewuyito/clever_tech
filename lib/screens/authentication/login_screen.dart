@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:clever_tech/features/auth/auth_exceptions.dart';
 import 'package:clever_tech/features/auth/auth_service.dart';
+import 'package:clever_tech/features/auth/google_auth_provider.dart';
 import 'package:clever_tech/screens/app_build/main_app_builder.dart';
 import 'package:clever_tech/screens/authentication/forgetpassword_main.dart';
 import 'package:clever_tech/screens/authentication/sign_up.dart';
@@ -22,6 +23,8 @@ class _LoginState extends State<Login> {
   late TextEditingController _email;
   late TextEditingController _password;
 
+  final GoogleAuth googleAuth = GoogleAuth();
+
   @override
   void initState() {
     _email = TextEditingController();
@@ -38,14 +41,8 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery
-        .of(context)
-        .size
-        .width;
-    double screenHeight = MediaQuery
-        .of(context)
-        .size
-        .height;
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       appBar: AppBar(),
       body: SingleChildScrollView(
@@ -67,7 +64,7 @@ class _LoginState extends State<Login> {
             const Text(
               "Hello again, you've been missed",
               style: TextStyle(
-                // fontSize: 18,
+                  // fontSize: 18,
                   color: Color.fromARGB(255, 182, 176, 176),
                   fontFamily: 'SFTS'),
             ),
@@ -80,7 +77,7 @@ class _LoginState extends State<Login> {
               decoration: const InputDecoration(
                 hintText: 'Email',
                 hintStyle:
-                TextStyle(fontWeight: FontWeight.w600, fontFamily: 'SFTS'),
+                    TextStyle(fontWeight: FontWeight.w600, fontFamily: 'SFTS'),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(
                     Radius.circular(20.0),
@@ -95,7 +92,7 @@ class _LoginState extends State<Login> {
               decoration: const InputDecoration(
                 hintText: 'Password',
                 hintStyle:
-                TextStyle(fontWeight: FontWeight.w600, fontFamily: 'SFTS'),
+                    TextStyle(fontWeight: FontWeight.w600, fontFamily: 'SFTS'),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(
                     Radius.circular(20.0),
@@ -123,17 +120,23 @@ class _LoginState extends State<Login> {
                         ),
                       );
                     } else {
-                      ScaffoldMessenger.of(context).showSnackBar(kSnackBar('User Could not be found'),);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        kSnackBar('User Could not be found'),
+                      );
                     }
                   } on UserNotFoundAuthException {
-                    ScaffoldMessenger.of(context).showSnackBar(kSnackBar('User not found'),);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      kSnackBar('User not found'),
+                    );
                   } on WrongPasswordAuthException {
-                    ScaffoldMessenger.of(context).showSnackBar(kSnackBar('Wrong Password'),);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      kSnackBar('Wrong Password'),
+                    );
                   } on GenericAuthException {
                     log('Error occurred}');
-                  }
-                  catch (e){
-                    ScaffoldMessenger.of(context).showSnackBar(kSnackBar(e.toString()));
+                  } catch (e) {
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(kSnackBar(e.toString()));
                   }
                 },
                 label: 'Sign in',
@@ -147,7 +150,7 @@ class _LoginState extends State<Login> {
               child: const Text(
                 'Forget password?',
                 style: TextStyle(
-                  // fontSize: 18,
+                    // fontSize: 18,
                     color: Color.fromARGB(255, 182, 176, 176),
                     fontFamily: 'SFTS'),
               ),
@@ -165,7 +168,7 @@ class _LoginState extends State<Login> {
                   child: Text(
                     'or',
                     style: TextStyle(
-                      // fontSize: 18,
+                        // fontSize: 18,
                         color: Color.fromARGB(255, 182, 176, 176),
                         fontFamily: 'SFTS'),
                   ),
@@ -180,13 +183,15 @@ class _LoginState extends State<Login> {
               height: 50,
               child: OutlinedButton(
                 style: OutlinedButton.styleFrom(
-                    side: const BorderSide(width: 1, color: Colors.grey),
-                    shape: const RoundedRectangleBorder(
+                      side: const BorderSide(width: 1, color: Colors.grey),
+                      shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(
                         Radius.circular(15),
                       ),
                     )),
-                onPressed: () {},
+                onPressed: () {
+                  googleAuth.signIn();
+                },
                 child: const Text('Login with  Google'),
               ),
             ),
@@ -201,8 +206,8 @@ class _LoginState extends State<Login> {
                     side: const BorderSide(width: 1, color: Colors.grey),
                     shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(
-                          Radius.circular(15),
-                        ))),
+                      Radius.circular(15),
+                    ))),
                 onPressed: () {},
                 child: const Text('Login with  Apple'),
               ),
@@ -219,13 +224,13 @@ class _LoginState extends State<Login> {
                   TextButton(
                     style: TextButton.styleFrom(
                       textStyle:
-                      const TextStyle(decoration: TextDecoration.underline),
+                          const TextStyle(decoration: TextDecoration.underline),
                       padding: EdgeInsets.zero,
                     ),
                     onPressed: () =>
                         Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => const SignUp(),
-                        )),
+                      builder: (context) => const SignUp(),
+                    )),
                     child: const Text("Sign Up"),
                   )
                 ],

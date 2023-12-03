@@ -1,9 +1,6 @@
-import 'dart:convert';
-import 'dart:developer';
 import 'package:clever_tech/data/colors.dart';
 import 'package:clever_tech/features/auth/auth_service.dart';
 import 'package:clever_tech/screens/app_build/account_flow/account_edits.dart';
-import 'package:clever_tech/screens/app_build/automation_flow/new_automation/main_automation.dart';
 import 'package:clever_tech/screens/authentication/login_screen.dart';
 import 'package:clever_tech/widgets/button_widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';

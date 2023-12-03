@@ -11,17 +11,18 @@ class ETextField extends StatefulWidget {
   final Function? validator;
   final Function? onChanged;
 
-  const ETextField(
-      {super.key,
-      this.hint,
-      this.controller,
-      this.baseColor,
-      this.borderColor,
-      this.errorColor,
-      this.inputType = TextInputType.text,
-      this.obscureText = false,
-      this.validator,
-      this.onChanged});
+  const ETextField({
+    super.key,
+    this.hint,
+    this.controller,
+    this.baseColor,
+    this.borderColor,
+    this.errorColor,
+    this.inputType = TextInputType.text,
+    this.obscureText = false,
+    this.validator,
+    this.onChanged,
+  });
 
   @override
   State<ETextField> createState() => _ETextFieldState();
@@ -45,7 +46,7 @@ class _ETextFieldState extends State<ETextField> {
         side: const BorderSide(color: Colors.red, width: 2.0),
         borderRadius: BorderRadius.circular(20.0),
       ),
-      child:  Padding(
+      child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10.0),
         child: TextField(
           obscureText: widget.obscureText,

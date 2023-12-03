@@ -5,6 +5,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+
+/* Test page used to test new services before integration */
 class Home extends StatefulWidget {
   const Home({super.key});
 

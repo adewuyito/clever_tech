@@ -1,19 +1,10 @@
 import 'dart:convert';
 
 import 'package:clever_tech/constants/crud_constants.dart';
+import 'package:clever_tech/features/CRUD/crud_exceptions.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' show join;
-
-class DataBaseAlreadyOpenException implements Exception {}
-
-class UnableToGetDocumentDirectory implements Exception {}
-
-class DataBaseNotOpen implements Exception {}
-
-class CouldNotDeleteAccount implements Exception {}
-
-class UserAlreadyExists implements Exception {}
 
 class DataBaseService {
   Database? _db;
@@ -120,8 +111,7 @@ class DatabaseUser {
       };
 
   @override
-  String toString() =>
-      'Person(id: $id, email: $email, displayName: $displayName)';
+  String toString() => 'Person(id: $id, email: $email, displayName: $displayName)';
 
   @override
   bool operator ==(covariant DatabaseUser other) => id == other.id;
